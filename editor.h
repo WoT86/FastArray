@@ -2,6 +2,7 @@
 #define EDITOR_H
 
 #include <QMainWindow>
+#include <QKeyEvent>
 
 namespace Ui {
 class Editor;
@@ -15,8 +16,15 @@ public:
     explicit Editor(QWidget *parent = 0);
     ~Editor();
 
+protected:
+    virtual void keyPressEvent(QKeyEvent *event);
+    virtual void keyReleaseEvent(QKeyEvent *event);
+
 private:
     Ui::Editor *ui;
+
+protected:
+    bool GridVisible;
 };
 
 #endif // EDITOR_H
