@@ -3,41 +3,33 @@
 EditorView::EditorView(QWidget *parent) :
     QGraphicsView(parent),
     PanningEnabled(false),
-    GridVisible(true)
+    GridVisible(true),
+    GridSpacing(100),
+    SceneSize(GridSpacing*50), //arbitrary factor
+    kernel(QString("C:\\Users\\WoT\\Qt\\FastArray\\build-JPEGImporter-Desktop_Qt_5_1_1_MinGW_32bit-Debug\\debug"))
 {
+    connect(&(kernel),SIGNAL(pluginLoaded(QString,PluginInterface*)),SLOT(acquirePlugin(QString,PluginInterface*)));
+
+    kernel.loadPlugins();
+
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    setAcceptDrops(true);
 
     //Set-up the scene
     QGraphicsScene* Scene = new QGraphicsScene(this);
     setScene(Scene);
 
-    //Populate the scene
-    for(int x = 0; x < 1000; x = x + 25)
+    //Create the grid
+    for(qreal i = 0; i < SceneSize; i = i + GridSpacing)
     {
-        for(int y = 0; y < 1000; y = y + 25)
-        {
-
-            if(x % 100 == 0 && y % 100 == 0)
-            {
-                Scene->addRect(x, y, 2, 2);
-
-                QString pointString;
-                QTextStream stream(&pointString);
-                stream << "(" << x << "," << y << ")";
-                QGraphicsTextItem* item = Scene->addText(pointString);
-                item->setPos(x, y);
-            }
-            else
-            {
-                Scene->addRect(x, y, 1, 1);
-            }
-        }
+        Scene->addLine(i,0,i,SceneSize,QPen(Qt::black,1,Qt::DashDotDotLine));
+        Scene->addLine(0,i,SceneSize,i,QPen(Qt::black,1,Qt::DashDotDotLine));
     }
 
     this->BackgroundLayer = Scene->createItemGroup(Scene->items());
 
     //Set-up the view
-    setSceneRect(0, 0, 1000, 1000);
+    setSceneRect(0, 0, SceneSize, SceneSize);
 
     enablePanning(false);
 }
@@ -66,6 +58,41 @@ void EditorView::wheelEvent(QWheelEvent *event)
 
     // Don't call superclass handler here
     // as wheel is normally used for moving scrollbars
+}
+
+void EditorView::dragEnterEvent(QDragEnterEvent *event)
+{
+    if(event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void EditorView::dragMoveEvent(QDragMoveEvent *event)
+{
+    if(event->mimeData()->hasUrls())
+        event->acceptProposedAction();
+}
+
+void EditorView::dropEvent(QDropEvent *event)
+{
+    int y = 0;
+
+    if(event->mimeData()->hasUrls())
+    {
+        foreach (QUrl url, event->mimeData()->urls())
+        {
+            QPoint droppos = event->pos();
+            droppos.setY(droppos.y()+y);
+
+            QPixmap pix = importer->loadImage(url.toLocalFile());
+
+            if(!(pix.isNull()))
+            {
+                QGraphicsItem* item = this->scene()->addPixmap(pix);
+                item->setPos(droppos);
+                y += 20;
+            }
+        }
+    }
 }
 
 void EditorView::enablePanning(bool pan)
@@ -103,5 +130,13 @@ void EditorView::enableGrid(bool grid)
             //Hide Grid
             this->BackgroundLayer->hide();
         }
+    }
+}
+
+void EditorView::acquirePlugin(QString type, PluginInterface *plugin)
+{
+    if(type == QString(IMPORTER_PLUGIN))
+    {
+        importer = dynamic_cast<ImporterPluginInterface *>(plugin);
     }
 }

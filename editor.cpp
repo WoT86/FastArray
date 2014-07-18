@@ -7,6 +7,7 @@ Editor::Editor(QWidget *parent) :
     GridVisible(true)
 {
     ui->setupUi(this);
+
     showMaximized();
 }
 
@@ -36,7 +37,7 @@ void Editor::keyReleaseEvent(QKeyEvent *event)
     switch(event->key())
     {
     case Qt::Key_Control:
-        this->ui->graphicsView->enablePanning(true);
+        this->ui->graphicsView->enablePanning(false);
         break;
     }
 }

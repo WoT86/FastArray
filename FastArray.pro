@@ -14,9 +14,13 @@ TEMPLATE = app
 
 SOURCES += main.cpp\
         editor.cpp \
-    editorview.cpp
+    editorview.cpp \
+    plugincentral.cpp
 
 HEADERS  += editor.h \
-    editorview.h
+    editorview.h \
+    plugininterface.h \
+    importerplugininterface.h \
+    plugincentral.h
 
 FORMS    += editor.ui

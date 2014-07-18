@@ -1,4 +1,6 @@
 #include "editor.h"
+#include "plugincentral.h"
+
 #include <QApplication>
 
 int main(int argc, char *argv[])

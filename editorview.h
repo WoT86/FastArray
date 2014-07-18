@@ -6,6 +6,11 @@
 #include <QGraphicsTextItem>
 #include <QWheelEvent>
 #include <QGraphicsItemGroup>
+#include <QMimeData>
+
+#include "plugincentral.h"
+#include "plugininterface.h"
+#include "importerplugininterface.h"
 
 class EditorView : public QGraphicsView
 {
@@ -20,6 +25,9 @@ public:
 
 protected:
     virtual void wheelEvent(QWheelEvent *event);
+    virtual void dragEnterEvent(QDragEnterEvent *event);
+    virtual void dragMoveEvent(QDragMoveEvent *event);
+    virtual void dropEvent(QDropEvent *event);
 
 signals:
 
@@ -27,11 +35,20 @@ public slots:
     void enablePanning(bool pan);
     void enableGrid(bool grid);
 
+    void acquirePlugin(QString type,PluginInterface* plugin);
+
 protected:
     bool PanningEnabled;
     bool GridVisible;
 
+    unsigned int GridSpacing;
+
+    qreal SceneSize;
+
     Layer* BackgroundLayer;
+    ImporterPluginInterface* importer;
+
+    PluginCentral kernel;
 };
 
 #endif // EDITORVIEW_H
