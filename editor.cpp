@@ -16,6 +16,15 @@ Editor::~Editor()
     delete ui;
 }
 
+void Editor::pluginLoaded(const QString &Type, PluginInterface *plugin)
+{
+    //Distributes Plugins to the components
+    if(Type == QString(IMPORTER_PLUGIN))
+    {
+        this->ui->graphicsView->acquirePlugin(Type,plugin);
+    }
+}
+
 void Editor::keyPressEvent(QKeyEvent *event)
 {
     switch(event->key())

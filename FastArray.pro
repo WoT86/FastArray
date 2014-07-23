@@ -15,12 +15,17 @@ TEMPLATE = app
 SOURCES += main.cpp\
         editor.cpp \
     editorview.cpp \
-    plugincentral.cpp
+    plugincentral.cpp \
+    logger.cpp \
+    loggermessage.cpp
 
 HEADERS  += editor.h \
     editorview.h \
     plugininterface.h \
     importerplugininterface.h \
-    plugincentral.h
+    plugincentral.h \
+    loggerinterface.h \
+    logger.h \
+    loggermessage.h
 
 FORMS    += editor.ui

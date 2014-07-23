@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QKeyEvent>
 
+#include "plugininterface.h"
+
 namespace Ui {
 class Editor;
 }
@@ -15,6 +17,9 @@ class Editor : public QMainWindow
 public:
     explicit Editor(QWidget *parent = 0);
     ~Editor();
+
+public slots:
+    void pluginLoaded(const QString& Type,PluginInterface* plugin);
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);

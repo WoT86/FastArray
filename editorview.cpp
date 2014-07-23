@@ -5,13 +5,8 @@ EditorView::EditorView(QWidget *parent) :
     PanningEnabled(false),
     GridVisible(true),
     GridSpacing(100),
-    SceneSize(GridSpacing*50), //arbitrary factor
-    kernel(QString("C:\\Users\\WoT\\Qt\\FastArray\\build-JPEGImporter-Desktop_Qt_5_1_1_MinGW_32bit-Debug\\debug"))
+    SceneSize(GridSpacing*50) //arbitrary factor
 {
-    connect(&(kernel),SIGNAL(pluginLoaded(QString,PluginInterface*)),SLOT(acquirePlugin(QString,PluginInterface*)));
-
-    kernel.loadPlugins();
-
     setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     setAcceptDrops(true);
 
@@ -89,6 +84,8 @@ void EditorView::dropEvent(QDropEvent *event)
             {
                 QGraphicsItem* item = this->scene()->addPixmap(pix);
                 item->setPos(droppos);
+                item->setFlag(QGraphicsItem::ItemIsSelectable,true);
+                item->setFlag(QGraphicsItem::ItemIsMovable,true);
                 y += 20;
             }
         }

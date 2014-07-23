@@ -8,7 +8,6 @@
 #include <QGraphicsItemGroup>
 #include <QMimeData>
 
-#include "plugincentral.h"
 #include "plugininterface.h"
 #include "importerplugininterface.h"
 
@@ -47,8 +46,6 @@ protected:
 
     Layer* BackgroundLayer;
     ImporterPluginInterface* importer;
-
-    PluginCentral kernel;
 };
 
 #endif // EDITORVIEW_H

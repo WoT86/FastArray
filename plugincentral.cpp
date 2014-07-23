@@ -15,8 +15,8 @@ void PluginCentral::loadPlugins()
 
         foreach (QString file, Files)
         {
-            QPluginLoader loader(PluginDir.absoluteFilePath(file),this);
-            QObject *plugin = loader.instance();
+            this->LoaderList.append(new QPluginLoader(PluginDir.absoluteFilePath(file),this));
+            QObject *plugin = this->LoaderList.last()->instance();
 
             if(plugin)
             {

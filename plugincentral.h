@@ -25,6 +25,7 @@ protected:
 
 protected:
     QList<PluginInterface*> PluginList;
+    QList<QPluginLoader*> LoaderList;
 
     QDir PluginDir;
 };
