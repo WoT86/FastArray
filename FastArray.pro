@@ -29,3 +29,5 @@ HEADERS  += editor.h \
     loggermessage.h
 
 FORMS    += editor.ui
+
+CONFIG(debug, release|debug):DEFINES += _DEBUG

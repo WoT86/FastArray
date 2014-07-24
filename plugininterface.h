@@ -1,6 +1,8 @@
 #ifndef PLUGININTERFACE_H
 #define PLUGININTERFACE_H
 
+#include "../FastArray/loggerinterface.h"
+
 //Defs for PluginType
 #define IMPORTER_PLUGIN "FastArray.Image.Importer.Plugin"
 #define EXPORTER_PLUGIN "FastArray.Image.Exporter.Plugin"
@@ -17,6 +19,10 @@ public:
     virtual QString getPluginName() const = 0;
     virtual QString getPluginType() const = 0;
     virtual QString getPluginVersion() const = 0;
+
+    virtual void registerLogger(LoggerInterface* logger) = 0;
 };
+
+Q_DECLARE_INTERFACE(PluginInterface, "WoT.FastArray.PluginInterface/1.0")
 
 #endif // PLUGININTERFACE_H

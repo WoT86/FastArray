@@ -32,7 +32,7 @@ LoggerMessage &LoggerMessage::operator=(const LoggerMessage &other)
     return *(this);
 }
 
-bool LoggerMessage::operator<(const LoggerMessage &other)
+bool LoggerMessage::operator<(const LoggerMessage &other) const
 {
     //required to use qSort, sorts the list by Date
     return this->SentAt < other.SentAt;
@@ -135,7 +135,7 @@ LoggerMessage LoggerMessage::fromString(const QString &standardString)
     return LoggerMessage();
 }
 
-LoggerMessage::operator QString()
+LoggerMessage::operator QString() const
 {
     QString typeStr;
 

@@ -1,13 +1,11 @@
 #ifndef IMPORTERPLUGININTERFACE_H
 #define IMPORTERPLUGININTERFACE_H
 
-#include "plugininterface.h"
-
 #include <QStringList>
 #include <QPixmap>
 #include <QFile>
 
-class ImporterPluginInterface : public PluginInterface
+class ImporterPluginInterface
 {
 public:
     virtual ~ImporterPluginInterface() {};

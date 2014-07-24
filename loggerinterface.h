@@ -5,7 +5,7 @@
 
 enum MessageType
 {
-    WARNING,ERROR,INFO,INVALID
+    ERROR=0,WARNING=1,INFO=2,INVALID=3
 };
 
 class LoggerInterface

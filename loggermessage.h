@@ -12,9 +12,9 @@ public:
     LoggerMessage(const LoggerMessage& other);
 
     LoggerMessage &operator=(const LoggerMessage& other);
-    bool operator<(const LoggerMessage& other);
+    bool operator<(const LoggerMessage& other) const;
 
-    operator QString();
+    operator QString() const;
 
     bool isValid();
 
