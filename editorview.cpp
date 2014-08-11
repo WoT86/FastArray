@@ -3,52 +3,46 @@
 EditorView::EditorView(QWidget *parent) :
     QGraphicsView(parent),
     PanningEnabled(false),
-    GridVisible(true),
     GridSpacing(100),
-    SceneSize(GridSpacing*50) //arbitrary factor
+    SceneSize(GridSpacing*50), //arbitrary factor
+    ArrayScene(NULL)
 {
-    setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
-    setAcceptDrops(true);
+    this->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
+    this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    this->setAcceptDrops(true);
 
-    //Set-up the scene
-    QGraphicsScene* Scene = new QGraphicsScene(this);
-    setScene(Scene);
+    this->enablePanning(false);
+}
 
-    //Create the grid
-    for(qreal i = 0; i < SceneSize; i = i + GridSpacing)
+void EditorView::setScene(Array *array)
+{
+    if(array)
     {
-        Scene->addLine(i,0,i,SceneSize,QPen(Qt::black,1,Qt::DashDotDotLine));
-        Scene->addLine(0,i,SceneSize,i,QPen(Qt::black,1,Qt::DashDotDotLine));
+        this->ArrayScene = array;
+        QGraphicsView::setScene(array);
     }
-
-    this->BackgroundLayer = Scene->createItemGroup(Scene->items());
-
-    //Set-up the view
-    setSceneRect(0, 0, SceneSize, SceneSize);
-
-    enablePanning(false);
 }
 
 bool EditorView::isGridVisible()
 {
-    return this->GridVisible;
+    return this->ArrayScene->isGridVisible();
 }
 
 void EditorView::wheelEvent(QWheelEvent *event)
 {
-    setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+    // this functions scales the view to perform zooming
+    double scaleFactorIn = 1.15;
+    double scaleFactorOut = 1.0 / scaleFactorIn;
 
-    // Scale the view / do the zoom
-    double scaleFactor = 1.15;
-    if(event->delta() > 0)
+    if(event->angleDelta().y() > 0)
     {
         // Zoom in
-        scale(scaleFactor, scaleFactor);
+        this->scale(scaleFactorIn, scaleFactorIn);
     }
     else
     {
         // Zooming out
-        scale(1.0 / scaleFactor, 1.0 / scaleFactor);
+        this->scale(scaleFactorOut, scaleFactorOut);
     }
 
     // Don't call superclass handler here
@@ -69,25 +63,12 @@ void EditorView::dragMoveEvent(QDragMoveEvent *event)
 
 void EditorView::dropEvent(QDropEvent *event)
 {
-    int y = 0;
-
+    //handles dropevents and passes them to the array
     if(event->mimeData()->hasUrls())
     {
         foreach (QUrl url, event->mimeData()->urls())
         {
-            QPoint droppos = event->pos();
-            droppos.setY(droppos.y()+y);
-
-            QPixmap pix = importer->loadImage(url.toLocalFile());
-
-            if(!(pix.isNull()))
-            {
-                QGraphicsItem* item = this->scene()->addPixmap(pix);
-                item->setPos(droppos);
-                item->setFlag(QGraphicsItem::ItemIsSelectable,true);
-                item->setFlag(QGraphicsItem::ItemIsMovable,true);
-                y += 20;
-            }
+            this->ArrayScene->addImage(url.toLocalFile(),this->mapToScene(event->pos()));
         }
     }
 }
@@ -113,27 +94,8 @@ void EditorView::enablePanning(bool pan)
 
 void EditorView::enableGrid(bool grid)
 {
-    if(grid != this->GridVisible)
+    if(this->ArrayScene)
     {
-        this->GridVisible = grid;
-
-        if(grid)
-        {
-            //Show Grid
-            this->BackgroundLayer->show();
-        }
-        else
-        {
-            //Hide Grid
-            this->BackgroundLayer->hide();
-        }
-    }
-}
-
-void EditorView::acquirePlugin(QString type, PluginInterface *plugin)
-{
-    if(type == QString(IMPORTER_PLUGIN))
-    {
-        importer = dynamic_cast<ImporterPluginInterface *>(plugin);
+        this->ArrayScene->showGrid(grid);
     }
 }

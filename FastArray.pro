@@ -17,7 +17,12 @@ SOURCES += main.cpp\
     editorview.cpp \
     plugincentral.cpp \
     logger.cpp \
-    loggermessage.cpp
+    loggermessage.cpp \
+    projectmanager.cpp \
+    array.cpp \
+    projectsettings.cpp \
+    arraysettings.cpp \
+    projecttabwidget.cpp
 
 HEADERS  += editor.h \
     editorview.h \
@@ -26,7 +31,12 @@ HEADERS  += editor.h \
     plugincentral.h \
     loggerinterface.h \
     logger.h \
-    loggermessage.h
+    loggermessage.h \
+    projectmanager.h \
+    array.h \
+    projectsettings.h \
+    arraysettings.h \
+    projecttabwidget.h
 
 FORMS    += editor.ui
 

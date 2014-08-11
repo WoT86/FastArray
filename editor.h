@@ -4,7 +4,7 @@
 #include <QMainWindow>
 #include <QKeyEvent>
 
-#include "plugininterface.h"
+#include "projectmanager.h"
 
 namespace Ui {
 class Editor;
@@ -15,11 +15,10 @@ class Editor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Editor(QWidget *parent = 0);
+    explicit Editor(const ProjectManager* pm, QWidget *parent = 0);
     ~Editor();
 
 public slots:
-    void pluginLoaded(const QString& Type,PluginInterface* plugin);
 
 protected:
     virtual void keyPressEvent(QKeyEvent *event);

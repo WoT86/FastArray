@@ -17,7 +17,7 @@
    <string>Editor</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -34,19 +34,57 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="EditorView" name="graphicsView">
-      <property name="frameShape">
-       <enum>QFrame::NoFrame</enum>
+     <widget class="ProjectTabWidget" name="tabWidget">
+      <property name="tabPosition">
+       <enum>QTabWidget::South</enum>
       </property>
-      <property name="frameShadow">
-       <enum>QFrame::Plain</enum>
-      </property>
-      <property name="lineWidth">
+      <property name="currentIndex">
        <number>0</number>
       </property>
-      <property name="transformationAnchor">
-       <enum>QGraphicsView::AnchorUnderMouse</enum>
+      <property name="tabsClosable">
+       <bool>true</bool>
       </property>
+      <property name="movable">
+       <bool>true</bool>
+      </property>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Tab 1</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_2">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="EditorView" name="graphicsView">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="lineWidth">
+           <number>0</number>
+          </property>
+          <property name="transformationAnchor">
+           <enum>QGraphicsView::AnchorUnderMouse</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -77,6 +115,12 @@
    <class>EditorView</class>
    <extends>QGraphicsView</extends>
    <header>editorview.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ProjectTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>projecttabwidget.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources/>

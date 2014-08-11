@@ -5,20 +5,18 @@
 #include <QTextStream>
 #include <QGraphicsTextItem>
 #include <QWheelEvent>
-#include <QGraphicsItemGroup>
 #include <QMimeData>
 
-#include "plugininterface.h"
-#include "importerplugininterface.h"
+#include "array.h"
 
 class EditorView : public QGraphicsView
 {
     Q_OBJECT
-public:
-    typedef QGraphicsItemGroup Layer;
 
 public:
     explicit EditorView(QWidget *parent = 0);
+
+    void setScene(Array* array);
 
     bool isGridVisible();
 
@@ -34,18 +32,14 @@ public slots:
     void enablePanning(bool pan);
     void enableGrid(bool grid);
 
-    void acquirePlugin(QString type,PluginInterface* plugin);
-
 protected:
     bool PanningEnabled;
-    bool GridVisible;
 
     unsigned int GridSpacing;
 
     qreal SceneSize;
 
-    Layer* BackgroundLayer;
-    ImporterPluginInterface* importer;
+    Array* ArrayScene;
 };
 
 #endif // EDITORVIEW_H

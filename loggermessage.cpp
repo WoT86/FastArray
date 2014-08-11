@@ -112,6 +112,7 @@ LoggerMessage LoggerMessage::fromString(const QString &standardString)
         {
             msg.SenderStr = sender;
 
+            //extract type string and try to convert it to enum
             substr = substr.right(substr.length() - substr.indexOf("]")-2);
             QString typestr = substr.left(substr.indexOf(":"));
 
@@ -124,6 +125,7 @@ LoggerMessage LoggerMessage::fromString(const QString &standardString)
             else
                 msg.Type = INVALID;
 
+            //extract message
             msg.MessageStr = substr.right(substr.length() - substr.indexOf(":")-2);
 
             //everything okay string valid
