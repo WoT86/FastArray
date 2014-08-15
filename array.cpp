@@ -135,7 +135,7 @@ void Array::createGrid(qreal gridspacing)
         x++;
     }
 
-    //store everything in the background layer
+    //store everything in the background layer and setting the correct Z-value
     this->GridLayer = this->createItemGroup(background);
     this->GridLayer->setZValue(-1);
 

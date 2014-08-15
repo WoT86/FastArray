@@ -22,7 +22,10 @@ SOURCES += main.cpp\
     array.cpp \
     projectsettings.cpp \
     arraysettings.cpp \
-    projecttabwidget.cpp
+    projecttabwidget.cpp \
+    logviewer.cpp \
+    layerviewer.cpp \
+    logtablemodel.cpp
 
 HEADERS  += editor.h \
     editorview.h \
@@ -36,8 +39,16 @@ HEADERS  += editor.h \
     array.h \
     projectsettings.h \
     arraysettings.h \
-    projecttabwidget.h
+    projecttabwidget.h \
+    logviewer.h \
+    layerviewer.h \
+    logtablemodel.h
 
-FORMS    += editor.ui
+FORMS    += editor.ui \
+    logviewer.ui \
+    layerviewer.ui
 
 CONFIG(debug, release|debug):DEFINES += _DEBUG
+
+RESOURCES += \
+    icons.qrc
