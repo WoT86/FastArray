@@ -20,6 +20,7 @@ public:
 
     QString getSender() const;
     QString getMessage() const;
+    QString getTypeString() const;
     MessageType getType() const;
     QDateTime getDateTime() const;
 
@@ -28,6 +29,9 @@ public:
     void setType(const MessageType& type);
 
     static LoggerMessage fromString(const QString& standardString);
+
+    static QString getTypeString(MessageType type);
+    static MessageType getTypeFromString(const QString& typeStr);
 
 protected:
 

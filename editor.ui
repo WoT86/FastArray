@@ -14,7 +14,14 @@
    <bool>false</bool>
   </property>
   <property name="windowTitle">
-   <string>Editor</string>
+   <string>FastArray</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="icons.qrc">
+    <normaloff>:/Toolbar/puzzle.ico</normaloff>:/Toolbar/puzzle.ico</iconset>
+  </property>
+  <property name="locale">
+   <locale language="English" country="UnitedStates"/>
   </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -106,8 +113,73 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionLayerViewer"/>
+   <addaction name="actionLog"/>
+   <addaction name="separator"/>
+   <addaction name="actionShowGrid"/>
+   <addaction name="actionEnablePanning"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
+  <action name="actionLog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/Log.ico</normaloff>:/Toolbar/Log.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Log</string>
+   </property>
+   <property name="toolTip">
+    <string>Displays the log viewer (CTRL+L)</string>
+   </property>
+  </action>
+  <action name="actionLayerViewer">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/layer1.ico</normaloff>:/Toolbar/layer1.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Layer Viewer</string>
+   </property>
+   <property name="toolTip">
+    <string>Displays the layer viewer (L)</string>
+   </property>
+  </action>
+  <action name="actionShowGrid">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/grid.ico</normaloff>:/Toolbar/grid.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Show Grid</string>
+   </property>
+   <property name="toolTip">
+    <string>Toggles grid (G)</string>
+   </property>
+  </action>
+  <action name="actionEnablePanning">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/pan.ico</normaloff>:/Toolbar/pan.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Enable Panning</string>
+   </property>
+   <property name="toolTip">
+    <string>Enables panning mode (CTRL)</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -123,6 +195,8 @@
    <container>1</container>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

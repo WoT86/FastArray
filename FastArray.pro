@@ -25,7 +25,14 @@ SOURCES += main.cpp\
     projecttabwidget.cpp \
     logviewer.cpp \
     layerviewer.cpp \
-    logtablemodel.cpp
+    logtablemodel.cpp \
+    logtableview.cpp \
+    logsettingsdialog.cpp \
+    loggersettings.cpp \
+    layertreeitem.cpp \
+    layer.cpp \
+    layertreemodel.cpp \
+    layertreeview.cpp
 
 HEADERS  += editor.h \
     editorview.h \
@@ -42,11 +49,19 @@ HEADERS  += editor.h \
     projecttabwidget.h \
     logviewer.h \
     layerviewer.h \
-    logtablemodel.h
+    logtablemodel.h \
+    logtableview.h \
+    logsettingsdialog.h \
+    loggersettings.h \
+    layertreeitem.h \
+    layer.h \
+    layertreemodel.h \
+    layertreeview.h
 
 FORMS    += editor.ui \
     logviewer.ui \
-    layerviewer.ui
+    layerviewer.ui \
+    logsettingsdialog.ui
 
 CONFIG(debug, release|debug):DEFINES += _DEBUG
 

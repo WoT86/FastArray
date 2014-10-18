@@ -56,6 +56,13 @@ QString LoggerMessage::getMessage() const
     return this->MessageStr;
 }
 
+QString LoggerMessage::getTypeString() const
+{
+    //just for convenience
+
+    return getTypeString(this->Type);
+}
+
 MessageType LoggerMessage::getType() const
 {
     return this->Type;
@@ -116,14 +123,7 @@ LoggerMessage LoggerMessage::fromString(const QString &standardString)
             substr = substr.right(substr.length() - substr.indexOf("]")-2);
             QString typestr = substr.left(substr.indexOf(":"));
 
-            if(typestr == QObject::tr("ERROR"))
-                msg.Type = ERROR;
-            else if(typestr == QObject::tr("WARNING"))
-                msg.Type = WARNING;
-            else if(typestr == QObject::tr("INFO"))
-                msg.Type = INFO;
-            else
-                msg.Type = INVALID;
+            msg.Type = LoggerMessage::getTypeFromString(typestr);
 
             //extract message
             msg.MessageStr = substr.right(substr.length() - substr.indexOf(":")-2);
@@ -137,25 +137,40 @@ LoggerMessage LoggerMessage::fromString(const QString &standardString)
     return LoggerMessage();
 }
 
-LoggerMessage::operator QString() const
+QString LoggerMessage::getTypeString(MessageType type)
 {
-    QString typeStr;
+    //just for convenience
 
-    switch(this->Type)
+    switch(type)
     {
     case ERROR:
-        typeStr = QObject::tr("ERROR");
-        break;
+        return QObject::tr("ERROR");
     case INFO:
-        typeStr = QObject::tr("INFO");
-        break;
+        return QObject::tr("INFO");
     case WARNING:
-        typeStr = QObject::tr("WARNING");
-        break;
+        return QObject::tr("WARNING");
     default:
-        typeStr = QObject::tr("INVALID");
-        break;
+        return QObject::tr("INVALID");
     }
+
+    return QString();
+}
+
+MessageType LoggerMessage::getTypeFromString(const QString &typeStr)
+{
+    if(typeStr == QObject::tr("ERROR"))
+        return ERROR;
+    else if(typeStr == QObject::tr("WARNING"))
+        return WARNING;
+    else if(typeStr == QObject::tr("INFO"))
+        return INFO;
+
+    return INVALID;
+}
+
+LoggerMessage::operator QString() const
+{
+    QString typeStr = this->getTypeString();
 
     //Definition of a Standard String
     return QString(this->SentAt.toString("hh:mm:ss dd.MM.yyyy") + QString(" [") + this->SenderStr + QString("] ") + typeStr + QString(": ") + this->MessageStr);

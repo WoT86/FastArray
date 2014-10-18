@@ -68,10 +68,17 @@
     </layout>
    </item>
    <item>
-    <widget class="QTreeView" name="treeView"/>
+    <widget class="LayerTreeView" name="treeView"/>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LayerTreeView</class>
+   <extends>QTreeView</extends>
+   <header>layertreeview.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="icons.qrc"/>
  </resources>

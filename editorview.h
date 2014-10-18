@@ -18,6 +18,8 @@ public:
 
     void setScene(Array* array);
 
+    Array *scene() const;
+
     bool isGridVisible();
 
 protected:

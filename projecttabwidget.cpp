@@ -2,7 +2,8 @@
 
 ProjectTabWidget::ProjectTabWidget(QWidget *parent) :
     QTabWidget(parent),
-    NewArrays(0)
+    NewArrays(0),
+    currentView(0)
 {
     //simple add button in the right corner, for a better solution need to rewrite QTabBar
     QPushButton* button = new QPushButton("+",this);
@@ -21,8 +22,24 @@ int ProjectTabWidget::newTab()
     return i;
 }
 
+void ProjectTabWidget::mousePressEvent(QMouseEvent *event)
+{
+    QTabWidget::mousePressEvent(event);
+    emit this->lockSelectionFocusToTabWidget();
+}
+
+void ProjectTabWidget::mouseReleaseEvent(QMouseEvent *event)
+{
+    QTabWidget::mouseReleaseEvent(event);
+    emit this->unlockSelectionFocusToTabWidget();
+}
+
 int ProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &label)
 {
+    Q_UNUSED(label);
+    Q_UNUSED(widget);
+    Q_UNUSED(icon);
+
     this->NewArrays++;
     int i = QTabWidget::addTab(new EditorView,icon,tr("new array %1").arg(QString::number(this->NewArrays)));
     emit this->requestNewArray(i);
@@ -31,6 +48,9 @@ int ProjectTabWidget::addTab(QWidget *widget, const QIcon &icon, const QString &
 
 int ProjectTabWidget::addTab(QWidget *widget, const QString &label)
 {
+    Q_UNUSED(label);
+    Q_UNUSED(widget);
+
     return this->newTab();
 }
 
@@ -78,13 +98,26 @@ void ProjectTabWidget::setNewArray(int tabIndex, Array *array)
 
     if(view)
     {
+        connect(this,SIGNAL(lockSelectionFocusToTabWidget()),array,SLOT(onLockSelectionFocusToArray()));
+        connect(this,SIGNAL(unlockSelectionFocusToTabWidget()),array,SLOT(onUnlockSelectionFocusToArray()));
         view->setScene(array);
         this->setTabText(i,array->getArrayName());
     }
 }
 
+void ProjectTabWidget::setLayerSelectionModel(QItemSelectionModel *newModel)
+{
+    if(this->currentView)
+        this->currentView->scene()->setLayerSelectionModel(newModel);
+}
+
 void ProjectTabWidget::currentIndexChanged(int index)
 {
     //disables panning after tab change to prevent getting stuck in panning
-    this->getView(index)->enablePanning(false);
+
+    this->currentView = this->getView(index);
+    currentView->enablePanning(false);
+
+    if(currentView->scene())
+        emit this->layerTreeModelChanged(this->getView(index)->scene()->getLayerTreeModel());
 }

@@ -10,6 +10,7 @@ EditorView::EditorView(QWidget *parent) :
     this->setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     this->setAcceptDrops(true);
+    this->setDragMode(QGraphicsView::RubberBandDrag);
 
     this->enablePanning(false);
 }
@@ -21,6 +22,11 @@ void EditorView::setScene(Array *array)
         this->ArrayScene = array;
         QGraphicsView::setScene(array);
     }
+}
+
+Array *EditorView::scene() const
+{
+    return this->ArrayScene;
 }
 
 bool EditorView::isGridVisible()

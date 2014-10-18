@@ -10,9 +10,12 @@
 #include <QFile>
 #include <QTextStream>
 #include <QMessageBox>
+#include <QStringList>
 
 #include "loggerinterface.h"
 #include "loggermessage.h"
+#include "logtablemodel.h"
+#include "loggersettings.h"
 
 class Logger : public QObject, public LoggerInterface
 {
@@ -24,6 +27,14 @@ public:
     ~Logger();
 
     void log(const QString &sender, const QString &message, MessageType type = INFO);
+
+    LogTableModel* getModel();
+
+    int getTotalMessageCount() const;
+
+    const LoggerSettings& getSettings() const;
+
+    const QStringList *getSenderList() const;
 
 private:
     //bunch of private convenient functions
@@ -37,7 +48,12 @@ private:
 
     void prepareLogFile();
 
+    void startFileBuffering();
+    void stopFileBuffering();
+
 signals:
+    void totalLogCountChanged(int count);
+    void senderListUpdated(const QString& newItem);
 
 public slots:
     void toggleFileLogging(bool enabled);
@@ -48,25 +64,27 @@ public slots:
     void setListModelLogLevel(MessageType level);
     void setPopUpLogLevel(MessageType level);
 
+    bool moveLog(const QString& newPath);
+
     void flushLog();
-    void dumpLogToFile(QString &targetFile, MessageType level = INVALID); //INVALID means every message even non standard and forgotten updates for the enum (;
+    void flushModel();
+    void dumpLogToFile(const QString &targetFile, MessageType level = INVALID); //INVALID means every message even non standard and forgotten updates for the enum (;
     void dumpLogToString(QString &target,MessageType level = INVALID);
-
-
 
 protected:
     QList<LoggerMessage> Log;
+    QList<LoggerMessage> Buffer;
 
-    bool FileLog;
-    bool ListModelLog;
-    bool PopUpLog;
+    QStringList SenderList;
 
-    MessageType FileLogLevel;
-    MessageType ListModelLogLevel;
-    MessageType PopUpLogLevel;
+    LoggerSettings Settings;
 
-    QFile LogFile;
-    QTextStream LogFileStream;
+    QFile* LogFile;
+    QTextStream* LogFileStream;
+
+    LogTableModel LogModel;
+
+    bool FileBuffering;
 };
 
 #endif // LOGGER_H

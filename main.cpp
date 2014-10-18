@@ -15,9 +15,10 @@ int main(int argc, char *argv[])
     PluginCentral c(QString("C:\\Users\\WoT\\Qt\\FastArray\\build-JPEGImporter-Desktop_Qt_5_1_1_MinGW_32bit-Debug\\debug"),&l); //Please replace after Debugging!
     ProjectManager p(&l,&c);
 
-    Editor w(&p);
+    Editor w(&l,&p);
 
     c.loadPlugins();
+    w.setLogTableModel(l.getModel());
     w.show();
 
     return a.exec();

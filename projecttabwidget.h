@@ -3,6 +3,7 @@
 
 #include <QTabWidget>
 #include <QPushButton>
+#include <QItemSelectionModel>
 
 #include "array.h"
 #include "editorview.h"
@@ -25,16 +26,27 @@ public:
 
 signals:
     void requestNewArray(int tabIndex);
+    void layerTreeModelChanged(LayerTreeModel* newModel);
+
+    void lockSelectionFocusToTabWidget();
+    void unlockSelectionFocusToTabWidget();
 
 public slots:
     void setNewArray(int tabIndex, Array* array);
+    void setLayerSelectionModel(QItemSelectionModel* newModel);
 
     void currentIndexChanged(int index);
 
     int newTab();
 
 protected:
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
+protected:
     int NewArrays;
+
+    EditorView* currentView;
 };
 
 #endif // PROJECTTABWIDGET_H

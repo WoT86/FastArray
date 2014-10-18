@@ -1,0 +1,19 @@
+<RCC>
+    <qresource prefix="/Toolbar">
+        <file>Delete.ico</file>
+        <file>Search.ico</file>
+        <file>Settings.ico</file>
+        <file>Log.ico</file>
+        <file>layer1.ico</file>
+        <file>layer2.ico</file>
+        <file>layer3.ico</file>
+        <file>grid.ico</file>
+        <file>puzzle.ico</file>
+        <file>pan.ico</file>
+    </qresource>
+    <qresource prefix="/LayerViewer">
+        <file>font.ico</file>
+        <file>pencil.ico</file>
+        <file>picture.ico</file>
+    </qresource>
+</RCC>
