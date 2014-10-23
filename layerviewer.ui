@@ -65,6 +65,20 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="0">
+      <widget class="QPushButton" name="buttonMoveToFront">
+       <property name="text">
+        <string>Move To Front</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QPushButton" name="buttonMoveToBack">
+       <property name="text">
+        <string>Move To Back</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
    <item>

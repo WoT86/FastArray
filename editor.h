@@ -47,6 +47,10 @@ private slots:
 
     void on_LogViewer_closed();
     void on_LayerViewer_closed();
+
+    void on_LayerViewer_deleteLayers();
+    void on_LayerViewer_groupLayers();
+    void on_LayerViewer_ungroupLayers();
 };
 
 #endif // EDITOR_H

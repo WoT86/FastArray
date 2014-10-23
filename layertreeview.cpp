@@ -2,42 +2,58 @@
 
 LayerTreeView::LayerTreeView(QWidget *parent) :
     QTreeView(parent),
-    SelectionFocus(false)
+    SelectionFocusLock(false)
 {
 }
 
-void LayerTreeView::onLockSelectionFocusToDialog()
+QList<Layer *> LayerTreeView::selectedLayers() const
 {
-    this->SelectionFocus = true;
-}
+    QList<Layer*> list;
 
-void LayerTreeView::onUnlockSelectionFocusToDialog()
-{
-    this->SelectionFocus = false;
+    foreach(QModelIndex index, this->selectedIndexes())
+    {
+        if(index.isValid())
+        {
+            LayerTreeItem* item = static_cast<LayerTreeItem*>(index.internalPointer());
+
+            if(item)
+                list.append(item->data());
+        }
+    }
+
+    return list;
 }
 
 void LayerTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 {
-    if(!(this->SelectionFocus))
-    {
-        QModelIndexList select = selected.indexes();
-        QModelIndexList deselect = deselected.indexes();
-        LayerTreeItem* layerItem;
-    
-        foreach(QModelIndex item,select)
+    if(this->SelectionFocusLock)
+    {   
+        foreach(QModelIndex item,deselected.indexes())
         {
-            layerItem = static_cast<LayerTreeItem*>(item.internalPointer());
-            if(layerItem)
-                layerItem->data()->setSelected(true);
-        }
-
-        foreach(QModelIndex item,deselect)
-        {
-            layerItem = static_cast<LayerTreeItem*>(item.internalPointer());
+            LayerTreeItem* layerItem = static_cast<LayerTreeItem*>(item.internalPointer());
             if(layerItem)
                 layerItem->data()->setSelected(false);
         }
+
+        foreach(QModelIndex item,selected.indexes())
+        {
+            LayerTreeItem* layerItem = static_cast<LayerTreeItem*>(item.internalPointer());
+            if(layerItem)
+                layerItem->data()->setSelected(true);
+        }
     }
-    
+
     QTreeView::selectionChanged(selected,deselected);
+}
+
+void LayerTreeView::mousePressEvent(QMouseEvent *event)
+{
+    this->SelectionFocusLock = true;
+    QTreeView::mousePressEvent(event);
+}
+
+void LayerTreeView::mouseReleaseEvent(QMouseEvent *event)
+{
+    this->SelectionFocusLock = false;
+    QTreeView::mouseReleaseEvent(event);
 }

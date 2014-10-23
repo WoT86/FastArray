@@ -5,6 +5,8 @@ Layer::Layer(LayerType type, QGraphicsItemGroup *parent) :
     layerType(type),
     selectionMarker(this)
 {
+    this->setFlag(QGraphicsItem::ItemIsMovable,true);
+    this->setFlag(QGraphicsItem::ItemIsSelectable,true);
     QColor selectionColor(Qt::gray);
     selectionColor.setAlpha(40);
     QBrush selectionBrush(selectionColor);
@@ -23,7 +25,17 @@ void Layer::addToGroup(QGraphicsItem *item)
     QGraphicsItemGroup::addToGroup(item);
 
     this->selectionMarker.setRect(this->boundingRect());
+    this->selectionMarker.setZValue(this->zValue()+1);
     this->selectionMarker.hide();
+}
+
+void Layer::removeFromGroup(QGraphicsItem *item)
+{
+    QGraphicsItemGroup::removeFromGroup(item);
+
+    //the following lines should update the bounding rect but they do not work... TODO solution
+    this->selectionMarker.setRect(this->boundingRect());
+    this->selectionMarker.setZValue(this->zValue()+1);
 }
 
 QVariant Layer::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)

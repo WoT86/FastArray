@@ -14,11 +14,20 @@ public:
     explicit LayerTreeModel(QObject *parent = 0);
     ~LayerTreeModel();
 
-    bool appendItem(Layer* item,Layer* parent = 0);
-    /*bool insertItem(Layer* item, int belowRow);
-    bool removeItem(int row);
+    bool appendItem(Layer* item, Layer* parent = 0);
+    bool prependItem(Layer* item, Layer* parent = 0);
+    bool insertItem(Layer* item, int i, Layer* parent = 0);
+    bool insertItem(Layer *item, int i, const QModelIndex& parent);
+    bool removeItem(int row, Layer* parent = 0);
     bool removeItem(const QModelIndex& index);
-    bool removeItem(Layer* item);*/
+    bool removeItem(Layer* item);
+
+    bool moveItem(const QModelIndex& parentFrom, int iFrom, const QModelIndex& parentTo, int iTo);
+    bool moveItem(Layer* item, Layer* parentTo, int i);
+    bool moveItem(const QModelIndex& index, const QModelIndex& parentTo, int i);
+
+    bool dismantleGroup(Layer* item);
+    bool dismantleGroup(const QModelIndex& index);
 
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;

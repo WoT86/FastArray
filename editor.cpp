@@ -16,6 +16,11 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
     connect(this->ui->tabWidget,SIGNAL(layerTreeModelChanged(LayerTreeModel*)),&LayerViewerDialog,SLOT(setLayerTreeModel(LayerTreeModel*)));
     connect(&LayerViewerDialog,SIGNAL(selectionModelChanged(QItemSelectionModel*)),this->ui->tabWidget,SLOT(setLayerSelectionModel(QItemSelectionModel*)));
 
+    //LayerViewerDialog buttons/key stroke signals
+    connect(&LayerViewerDialog,SIGNAL(deleteSelectedLayers()),SLOT(on_LayerViewer_deleteLayers()));
+    connect(&LayerViewerDialog,SIGNAL(groupSelectedLayers()),SLOT(on_LayerViewer_groupLayers()));
+    connect(&LayerViewerDialog,SIGNAL(ungroupSelectedLayers()),SLOT(on_LayerViewer_ungroupLayers()));
+
     //unchecks the tool bar buttons when the corresponding window is closed/rejected (QDialog)
     connect(&LogViewerDialog,SIGNAL(rejected()),SLOT(on_LogViewer_closed()));
     connect(&LayerViewerDialog,SIGNAL(rejected()),SLOT(on_LayerViewer_closed()));
@@ -50,14 +55,28 @@ void Editor::keyPressEvent(QKeyEvent *event)
 
     switch(event->key())
     {
+    case Qt::Key_Delete:
+        this->ui->tabWidget->getCurrentView()->scene()->removeSelectedLayers();
+        break;
+    case Qt::Key_U:
+        if(event->modifiers() == Qt::ControlModifier)
+            this->ui->tabWidget->getCurrentView()->scene()->ungroupSelectedLayers();
+        break;
     case Qt::Key_Control:
         this->ui->tabWidget->enablePanning(true);
         this->ui->actionEnablePanning->setChecked(true);
         break;
     case Qt::Key_G:
-        this->GridVisible = !(this->ui->tabWidget->isCurrentGridVisible());
-        this->ui->tabWidget->showGrid(this->GridVisible);
-        this->ui->actionShowGrid->setChecked(this->GridVisible);
+        if(event->modifiers() == Qt::ControlModifier)
+        {
+            this->ui->tabWidget->getCurrentView()->scene()->groupSelectedLayers();
+        }
+        else
+        {
+            this->GridVisible = !(this->ui->tabWidget->isCurrentGridVisible());
+            this->ui->tabWidget->showGrid(this->GridVisible);
+            this->ui->actionShowGrid->setChecked(this->GridVisible);
+        }
         break;
     case Qt::Key_L:
         if(event->modifiers() == Qt::ControlModifier)
@@ -66,8 +85,6 @@ void Editor::keyPressEvent(QKeyEvent *event)
             this->ui->actionLayerViewer->trigger();
         break;
     }
-
-
 }
 
 void Editor::keyReleaseEvent(QKeyEvent *event)
@@ -130,4 +147,19 @@ void Editor::on_LogViewer_closed()
 void Editor::on_LayerViewer_closed()
 {
     this->ui->actionLayerViewer->setChecked(false);
+}
+
+void Editor::on_LayerViewer_deleteLayers()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->removeSelectedLayers();
+}
+
+void Editor::on_LayerViewer_groupLayers()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->groupSelectedLayers();
+}
+
+void Editor::on_LayerViewer_ungroupLayers()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->ungroupSelectedLayers();
 }

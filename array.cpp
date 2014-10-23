@@ -5,7 +5,9 @@ Array::Array(LoggerInterface* logger, const QString& name, QObject *parent) :
     Name(name),
     SelectionFocusLock(false),
     Logger(logger),
-    GridLayer(NULL)
+    HighestZValue(0),
+    GridLayer(NULL),
+    LowestZValue(0)
 {
     connect(this,SIGNAL(selectionChanged()),this,SLOT(onSelectionChanged()));
 
@@ -36,6 +38,42 @@ bool Array::isGridVisible() const
 LayerTreeModel *Array::getLayerTreeModel()
 {
     return this->layerModel;
+}
+
+QList<Layer *> Array::selectedItems() const
+{
+    QList<Layer*> list;
+    QList<Layer*> others;
+    QList<QGraphicsItem*> groups;
+    QList<QGraphicsItem*> selected = QGraphicsScene::selectedItems();
+
+    //first extract all groups otherwise the selectedItems array has to be ordered group first, children afterwards
+    foreach(QGraphicsItem* item, selected)
+    {
+        if(item)
+        {
+            Layer* layer = static_cast<Layer*>(item);
+
+            if(layer)
+            {
+                if(layer->type() == Layer::GROUP)
+                {
+                    groups.append(item);
+                    list.append(layer);
+                }
+                else
+                    others.append(layer);
+            }
+        }
+    }
+
+    foreach(Layer* iLayer, others)
+    {
+        if(!(groups.contains(iLayer->parentItem())))
+            list.append(iLayer);
+    }
+
+    return list;
 }
 
 void Array::setSceneSize(qreal newSize)
@@ -89,14 +127,14 @@ void Array::addImage(const QPixmap &pixm,const QPointF& pos)
         if(!(pos.isNull()))
             pix->setPos(pos);
 
+        this->HighestZValue++;
+
         Layer* newLayer = new Layer(Layer::PICTURE);
         this->addItem(newLayer);
         newLayer->addToGroup(pix);
-        newLayer->setZValue(this->LayerList.length());
-        newLayer->setFlag(QGraphicsItem::ItemIsSelectable,true);
-        newLayer->setFlag(QGraphicsItem::ItemIsMovable,true);
+        newLayer->setZValue(this->HighestZValue);
 
-        this->layerModel->appendItem(newLayer);
+        this->layerModel->prependItem(newLayer);
         this->logInfo(tr("image added at x:%1 y:%2").arg(QString::number(pos.x()),QString::number(pos.y())));
     }
     else
@@ -111,6 +149,7 @@ void Array::addImage(const QPixmap &pixm, const QString &path)
     if(this->ImagesToLoadStack.contains(path))
     {
         this->addImage(pixm,this->ImagesToLoadStack[path]);
+        this->ImagesToLoadStack.remove(path);
     }
     else
     {
@@ -119,33 +158,161 @@ void Array::addImage(const QPixmap &pixm, const QString &path)
     }
 }
 
+void Array::removeLayers(QList<Layer *> list)
+{
+    foreach(Layer* item,list)
+    {
+        if(item)
+        {
+            QModelIndex index = this->layerModel->index(item);
+
+            if(index.isValid())
+            {
+                LayerTreeItem* ltItem = static_cast<LayerTreeItem*>(index.internalPointer());
+
+                if(ltItem)
+                {
+                    LayerTreeItem* parent = ltItem->parent();
+
+                    if(parent->parent())  //member of a group
+                    {
+                        if(parent->childCount() > 2)
+                        {
+                            this->logInfo(tr("%1 will be removed from %2").arg(ltItem->name(),parent->name()));
+                            parent->data()->removeFromGroup(ltItem->data());
+                        }
+                    }
+
+                    QString name = ltItem->name();
+                    this->logInfo(tr("%1 will be removed").arg(name));
+                    this->layerModel->removeItem(item);
+                    this->removeItem(item);
+                    delete item;
+
+                    if(parent->parent())  //member of a group
+                    {
+                        if(parent->childCount() < 2)
+                        {
+                            //no need for a group with one or less children
+                            this->ungroupLayer(parent->data());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Array::removeSelectedLayers()
+{
+    this->removeLayers(this->selectedItems());
+}
+
+void Array::groupLayers(QList<Layer *> list)
+{
+    if(list.count() > 1) //no need for groups with one or less children...
+    {
+        Layer* newGroup = new Layer(Layer::GROUP);
+
+        this->HighestZValue++;
+
+        newGroup->setZValue(this->HighestZValue);
+
+        this->layerModel->prependItem(newGroup);
+
+        //sort Layer list by z value
+        qSort(list.begin(),list.end(),Array::LayerZValueGreaterThan);
+
+        int i = 0;
+
+        foreach(Layer* layer,list)
+        {
+            this->layerModel->moveItem(layer,newGroup,i);
+            newGroup->addToGroup(layer);
+            i++;
+        }
+
+        this->addItem(newGroup);
+        this->clearSelection(); //prevents multi-selection bug
+        newGroup->setSelected(true);
+    }
+}
+
+void Array::groupSelectedLayers()
+{
+    this->groupLayers(this->selectedItems());
+}
+
+void Array::ungroupLayers(QList<Layer *> list)
+{
+    foreach(Layer* item, list)
+    {
+        this->ungroupLayer(item);
+    }
+}
+
+void Array::ungroupSelectedLayers()
+{
+    this->ungroupLayers(this->selectedItems());
+}
+
+void Array::ungroupLayer(Layer *item)
+{
+    if(item->type() == Layer::GROUP)
+    {
+        QModelIndex treeIndex = this->layerModel->index(item);
+        QString name = tr("unknown");
+
+        if(treeIndex.isValid())
+        {
+            LayerTreeItem* treeItem = static_cast<LayerTreeItem*>(treeIndex.internalPointer());
+
+            if(treeItem)
+                name = treeItem->name();
+        }
+
+        if(this->layerModel->dismantleGroup(item))
+        {
+            this->layerModel->removeItem(item);
+            this->removeItem(item);
+            this->logInfo(tr("%1 successfully ungrouped").arg(name));
+            delete item;
+        }
+        else
+        {
+            this->logError(tr("unable to ungroup: %1!").arg(name));
+        }
+    }
+}
+
 void Array::onLockSelectionFocusToArray()
 {
+    //prevents selection loop of selecting between array and layer stack
     this->SelectionFocusLock = true;
 }
 
 void Array::onUnlockSelectionFocusToArray()
 {
+    //unlocks the selection lock
     this->SelectionFocusLock = false;
 }
 
 void Array::onSelectionChanged()
 {
+    //synchronizes the selection between array and layer stack
+    //lock required to prevent infinite loop
+    //the usage of selection is required to prevent emitting of selectionChanged signals by the model
     if(this->selectionModel && !(this->SelectionFocusLock))
     {
-        QList<QGraphicsItem*> select = this->selectedItems();
         QItemSelection selection;
 
-        foreach(QGraphicsItem* item,select)
+        foreach(Layer* layerItem,this->selectedItems())
         {
-            Layer* layerItem = static_cast<Layer*>(item);
-
             if(layerItem)
             {
                 QModelIndex index = this->layerModel->index(layerItem);
                 if(index.isValid())
                     selection.append(QItemSelectionRange(index,index));
-
             }
         }
 
@@ -194,9 +361,14 @@ void Array::createGrid(qreal gridspacing)
     //store everything in the background layer and setting the correct Z-value
     //the layer does not need a type because its not part of the layer stack and therefore hidden
     this->GridLayer = static_cast<Layer*>(this->createItemGroup(background));
-    this->GridLayer->setZValue(-1);
+    this->GridLayer->setZValue(this->LowestZValue-1);
 
     this->logInfo(tr("grid created"));
+}
+
+bool Array::LayerZValueGreaterThan(const Layer *l1, const Layer *l2)
+{
+    return l1->zValue() > l2->zValue();
 }
 
 void Array::logError(const QString &msg)

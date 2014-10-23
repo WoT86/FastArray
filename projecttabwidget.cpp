@@ -78,6 +78,11 @@ EditorView *ProjectTabWidget::getView(int tabIndex) const
     return NULL;
 }
 
+EditorView *ProjectTabWidget::getCurrentView() const
+{
+    return this->currentView;
+}
+
 bool ProjectTabWidget::isCurrentGridVisible() const
 {
     return this->getView(this->currentIndex())->isGridVisible();

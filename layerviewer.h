@@ -28,14 +28,19 @@ protected slots:
 signals:
     void selectionModelChanged(QItemSelectionModel* newModel);
 
-    void lockSelectionFocusToLayerDialog();
-    void unlockSelectionFocusToLayerDialog();
+    void deleteSelectedLayers();
+    void groupSelectedLayers();
+    void ungroupSelectedLayers();
     
 protected:
     virtual void keyPressEvent(QKeyEvent *ev);
 
-    void mousePressEvent(QMouseEvent *event);
-    void mouseReleaseEvent(QMouseEvent *event);
+private slots:
+    void on_buttonDeleteLayer_clicked();
+
+    void on_buttonUngroupLayer_clicked();
+
+    void on_buttonGroupLayer_clicked();
 
 private:
     Ui::LayerViewer *ui;

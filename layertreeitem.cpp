@@ -35,12 +35,46 @@ LayerTreeItem::~LayerTreeItem()
 
 void LayerTreeItem::appendChild(Layer *child)
 {
+    //no zValue correction!
     this->childItems.append(new LayerTreeItem(child,this));
+}
+
+void LayerTreeItem::prependChild(Layer *child)
+{
+    //no zValue correction!
+    this->childItems.prepend(new LayerTreeItem(child,this));
+}
+
+void LayerTreeItem::insertChild(int i, Layer *child)
+{
+    //no zValue correction!
+    this->childItems.insert(i,new LayerTreeItem(child,this));
+}
+
+void LayerTreeItem::moveChild(int iFrom, int iTo)
+{
+    if(iFrom >= 0 && iTo >= 0 && iFrom < this->childCount() && iTo < this->childCount() && iTo != iFrom)
+    {
+        this->childItems.move(iFrom,iTo);
+    }
 }
 
 void LayerTreeItem::removeChild(int row)
 {
     this->childItems.removeAt(row);
+}
+
+void LayerTreeItem::move(LayerTreeItem *newParent, int i)
+{
+    //moves TreeItem to new parent
+    if(newParent && this->parent())
+    {
+        newParent->childItems.insert(i,this);
+
+        this->parent()->removeChild(this->row());
+
+        this->parentItem = newParent;
+    }
 }
 
 LayerTreeItem *LayerTreeItem::child(int row)

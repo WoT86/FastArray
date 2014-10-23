@@ -11,6 +11,7 @@ EditorView::EditorView(QWidget *parent) :
     this->setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
     this->setAcceptDrops(true);
     this->setDragMode(QGraphicsView::RubberBandDrag);
+    this->setInteractive(true);
 
     this->enablePanning(false);
 }
@@ -93,7 +94,7 @@ void EditorView::enablePanning(bool pan)
         else
         {
             //Disable Panning via ScrollHand Drag Mode
-            setDragMode(NoDrag);
+            setDragMode(QGraphicsView::RubberBandDrag);
         }
     }
 }

@@ -3,7 +3,8 @@
 
 #include <QGraphicsItemGroup>
 #include <QGraphicsRectItem>
-#include <QPen>
+#include <QBrush>
+#include <QDebug>
 
 class Layer : public QGraphicsItemGroup
 {
@@ -19,6 +20,7 @@ public:
     int type() const;
 
     void addToGroup(QGraphicsItem *item);
+    void removeFromGroup(QGraphicsItem *item);
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);

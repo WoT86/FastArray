@@ -25,18 +25,36 @@ void LayerViewer::setLayerTreeModel(LayerTreeModel *model)
 void LayerViewer::keyPressEvent(QKeyEvent *ev)
 {
     //Watch out if there is some input box... handle their focus here
-    if(ev->key() == Qt::Key_L)
+    switch(ev->key())
+    {
+    case Qt::Key_L:
         this->reject();
+        break;
+    case Qt::Key_Delete:
+        emit this->deleteSelectedLayers();
+        break;
+    case Qt::Key_G:
+        if(ev->modifiers() == Qt::ControlModifier)
+            emit this->groupSelectedLayers();
+        break;
+    case Qt::Key_U:
+        if(ev->modifiers() == Qt::ControlModifier)
+            emit this->ungroupSelectedLayers();
+        break;
+    }
 }
 
-void LayerViewer::mousePressEvent(QMouseEvent *event)
+void LayerViewer::on_buttonDeleteLayer_clicked()
 {
-    QDialog::mousePressEvent(event);
-    emit this->lockSelectionFocusToLayerDialog();
+    emit this->deleteSelectedLayers();
 }
 
-void LayerViewer::mouseReleaseEvent(QMouseEvent *event)
+void LayerViewer::on_buttonUngroupLayer_clicked()
 {
-    QDialog::mouseReleaseEvent(event);
-    emit this->unlockSelectionFocusToLayerDialog();
+    emit this->ungroupSelectedLayers();
+}
+
+void LayerViewer::on_buttonGroupLayer_clicked()
+{
+    emit this->groupSelectedLayers();
 }

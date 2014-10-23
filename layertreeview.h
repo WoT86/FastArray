@@ -10,15 +10,17 @@ class LayerTreeView : public QTreeView
 public:
     explicit LayerTreeView(QWidget *parent = 0);
 
-public slots:
-    void onLockSelectionFocusToDialog();
-    void onUnlockSelectionFocusToDialog();
-    
+    QList<Layer *> selectedLayers() const;
+
 protected slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 protected:
-    bool SelectionFocus;
+    void mousePressEvent(QMouseEvent *event);
+    void mouseReleaseEvent(QMouseEvent *event);
+
+protected:
+    bool SelectionFocusLock;
 };
 
 #endif // LAYERTREEVIEW_H

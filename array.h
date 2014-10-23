@@ -32,6 +32,8 @@ public:
 
     LayerTreeModel *getLayerTreeModel();
 
+    QList<Layer *> selectedItems() const;
+
 signals:
     void requestImage(Array* sender, const QString& path);
 
@@ -39,6 +41,19 @@ public slots:
     void addImage(const QString& path, const QPointF &pos);
     void addImage(const QPixmap& pixm,const QPointF& pos = QPointF());
     void addImage(const QPixmap &pixm, const QString& path);
+
+    void removeLayers(QList<Layer*> list);
+    void removeSelectedLayers();
+
+    void groupLayers(QList<Layer*> list);
+    void groupSelectedLayers();
+    void ungroupLayers(QList<Layer*> list);
+    void ungroupSelectedLayers();
+    void ungroupLayer(Layer* item);
+
+    /*void moveLayerUp(Layer* item,bool toFront = false);
+    void moveLayersUp(QList<Layer*> list,bool toFront = false);
+    void moveSelectedLayersUp(bool toFront = false);*/
 
     void onLockSelectionFocusToArray();
     void onUnlockSelectionFocusToArray();
@@ -48,6 +63,8 @@ protected slots:
 
 protected:
     void createGrid(qreal gridspacing = 100);
+
+    static bool LayerZValueGreaterThan(const Layer *l1, const Layer *l2);
 
 private:
     //convenient functions for internal use
@@ -63,13 +80,15 @@ protected:
     ArraySettings Settings;
     LoggerInterface* Logger;
 
-    QList<Layer*> LayerList;
+    qreal HighestZValue;
     Layer* GridLayer;
 
     QMap<QString,QPointF> ImagesToLoadStack;
 
     LayerTreeModel* layerModel;
     QItemSelectionModel* selectionModel;
+
+    const qreal LowestZValue;
 };
 
 #endif // ARRAY_H

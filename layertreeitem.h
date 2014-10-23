@@ -11,7 +11,12 @@ public:
     ~LayerTreeItem();
 
     void appendChild(Layer *child);
+    void prependChild(Layer *child);
+    void insertChild(int i, Layer *child);
+    void moveChild(int iFrom, int iTo);
     void removeChild(int row);
+
+    void move(LayerTreeItem* newParent, int i);
 
     LayerTreeItem *child(int row);
     LayerTreeItem *parent();

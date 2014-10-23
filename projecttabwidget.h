@@ -21,6 +21,7 @@ public:
     void showGrid(bool show);
 
     EditorView* getView(int tabIndex) const;
+    EditorView* getCurrentView() const;
 
     bool isCurrentGridVisible() const;
 
