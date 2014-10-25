@@ -130,9 +130,10 @@ void Array::addImage(const QPixmap &pixm,const QPointF& pos)
         this->HighestZValue++;
 
         Layer* newLayer = new Layer(Layer::PICTURE);
+        this->clearSelection();
         this->addItem(newLayer);
         newLayer->addToGroup(pix);
-        newLayer->setZValue(this->HighestZValue);
+        // newLayer->setZValue(this->HighestZValue); WDEBUG
 
         this->layerModel->prependItem(newLayer);
         this->logInfo(tr("image added at x:%1 y:%2").arg(QString::number(pos.x()),QString::number(pos.y())));
@@ -212,24 +213,37 @@ void Array::groupLayers(QList<Layer *> list)
 {
     if(list.count() > 1) //no need for groups with one or less children...
     {
+        QModelIndex index = this->layerModel->index(list.first()),parent = index.parent();
+        LayerTreeItem* LTI = 0;
+
+        for(int z = 1;z < list.count();z++)
+        {
+            index = this->layerModel->index(list[z]);
+            if(parent != index.parent())
+            {
+                this->logInfo(tr("unable to group layer of different parents - action skipped"));
+                return;
+            }
+        }
+
+        if(parent.isValid())
+            LTI = static_cast<LayerTreeItem*>(parent.internalPointer());
+
         Layer* newGroup = new Layer(Layer::GROUP);
 
-        this->HighestZValue++;
-
-        newGroup->setZValue(this->HighestZValue);
-
-        this->layerModel->prependItem(newGroup);
+        if(LTI && LTI->parent())
+            this->layerModel->prependItem(newGroup,LTI->data());
+        else
+            this->layerModel->prependItem(newGroup);
 
         //sort Layer list by z value
-        qSort(list.begin(),list.end(),Array::LayerZValueGreaterThan);
-
-        int i = 0;
+        qSort(list.begin(),list.end(),Array::LayerZValueLessThan);
 
         foreach(Layer* layer,list)
         {
-            this->layerModel->moveItem(layer,newGroup,i);
             newGroup->addToGroup(layer);
-            i++;
+            this->layerModel->moveItem(layer,newGroup,0);
+
         }
 
         this->addItem(newGroup);
@@ -283,6 +297,72 @@ void Array::ungroupLayer(Layer *item)
             this->logError(tr("unable to ungroup: %1!").arg(name));
         }
     }
+}
+
+void Array::moveLayerUp(Layer *item, bool toFront)
+{
+    if(item)
+    {
+        QModelIndex index = this->layerModel->index(item);
+
+        if(index.isValid())
+        {
+            if(toFront)
+            {
+                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),0);
+            }
+            else
+            {
+                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()-1);
+            }
+        }
+    }
+}
+
+void Array::moveLayersUp(QList<Layer *> list, bool toFront)
+{
+    foreach(Layer* item, list)
+    {
+        this->moveLayerUp(item,toFront);
+    }
+}
+
+void Array::moveSelectedLayersUp(bool toFront)
+{
+    this->moveLayersUp(this->selectedItems(),toFront);
+}
+
+void Array::moveLayerDown(Layer *item, bool toBack)
+{
+    if(item)
+    {
+        QModelIndex index = this->layerModel->index(item);
+
+        if(index.isValid())
+        {
+            if(toBack)
+            {
+                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),this->layerModel->rowCount(index.parent())-1);
+            }
+            else
+            {
+                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()+1);
+            }
+        }
+    }
+}
+
+void Array::moveLayersDown(QList<Layer *> list, bool toBack)
+{
+    foreach(Layer* item, list)
+    {
+        this->moveLayerDown(item,toBack);
+    }
+}
+
+void Array::moveSelectedLayersDown(bool toBack)
+{
+    this->moveLayersDown(this->selectedItems(),toBack);
 }
 
 void Array::onLockSelectionFocusToArray()
@@ -366,9 +446,9 @@ void Array::createGrid(qreal gridspacing)
     this->logInfo(tr("grid created"));
 }
 
-bool Array::LayerZValueGreaterThan(const Layer *l1, const Layer *l2)
+bool Array::LayerZValueLessThan(const Layer *l1, const Layer *l2)
 {
-    return l1->zValue() > l2->zValue();
+    return l1->zValue() < l2->zValue();
 }
 
 void Array::logError(const QString &msg)

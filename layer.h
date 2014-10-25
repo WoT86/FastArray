@@ -22,10 +22,10 @@ public:
     void addToGroup(QGraphicsItem *item);
     void removeFromGroup(QGraphicsItem *item);
 
+    void setZValue(qreal z);
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
-
-signals:
 
 public slots:
 

@@ -51,9 +51,12 @@ public slots:
     void ungroupSelectedLayers();
     void ungroupLayer(Layer* item);
 
-    /*void moveLayerUp(Layer* item,bool toFront = false);
+    void moveLayerUp(Layer* item,bool toFront = false);
     void moveLayersUp(QList<Layer*> list,bool toFront = false);
-    void moveSelectedLayersUp(bool toFront = false);*/
+    void moveSelectedLayersUp(bool toFront = false);
+    void moveLayerDown(Layer* item,bool toBack = false);
+    void moveLayersDown(QList<Layer*> list,bool toBack = false);
+    void moveSelectedLayersDown(bool toBack = false);
 
     void onLockSelectionFocusToArray();
     void onUnlockSelectionFocusToArray();
@@ -64,7 +67,7 @@ protected slots:
 protected:
     void createGrid(qreal gridspacing = 100);
 
-    static bool LayerZValueGreaterThan(const Layer *l1, const Layer *l2);
+    static bool LayerZValueLessThan(const Layer *l1, const Layer *l2);
 
 private:
     //convenient functions for internal use

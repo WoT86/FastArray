@@ -72,7 +72,7 @@ bool LayerTreeModel::prependItem(Layer *item, Layer *parent)
             LayerTreeItem* parentItem = static_cast<LayerTreeItem*>(parentIndex.internalPointer());
             if(parentItem)
             {
-                this->beginInsertRows(parentIndex,0,1);
+                this->beginInsertRows(parentIndex,0,0);
                 parentItem->prependChild(item);
                 this->endInsertRows();
 
@@ -86,7 +86,7 @@ bool LayerTreeModel::prependItem(Layer *item, Layer *parent)
     }
     else
     {
-        this->beginInsertColumns(QModelIndex(),0,1);
+        this->beginInsertColumns(QModelIndex(),0,0);
         this->rootItem->prependChild(item);
         this->endInsertRows();
 
@@ -211,26 +211,44 @@ bool LayerTreeModel::moveItem(const QModelIndex &parentFrom, int iFrom, const QM
 
     if(pFrom && pTo)
     {
-        if(parentFrom == parentTo)
+        if(pFrom == pTo)
         {
-            this->beginMoveRows(parentFrom,iFrom,iFrom,parentTo,iTo);
-            pFrom->moveChild(iFrom,iTo);
-            this->endMoveRows();
+            if(iFrom >= 0 && iTo >= 0 && iFrom < pFrom->childCount() && iTo < pTo->childCount())
+            {
+                if(iTo < iFrom)
+                {
+                    //move up
+                    if(!(this->beginMoveRows(parentFrom,iFrom,iFrom,parentTo,iTo)))
+                        return false;
+                }
+                else
+                {
+                    //move down see BeginMoveRows
+                    if(!(this->beginMoveRows(parentFrom,iFrom,iFrom,parentTo,(iTo >= pFrom->childCount()) ? pFrom->childCount() : (iTo+1))))
+                        return false;
+                }
 
-            if(iFrom > iTo)
-                qSwap(iFrom,iTo);   //To guarantee that dataChanged has indexes in correct order
+                pFrom->moveChild(iFrom,iTo);
+                this->endMoveRows();
 
-            emit this->dataChanged(parentFrom.child(iFrom,0),parentFrom.child(iTo,0));
-            return true;
+                if(iFrom > iTo)
+                    qSwap(iFrom,iTo);   //To guarantee that dataChanged has indexes in correct order
+
+                emit this->dataChanged(parentFrom.child(iFrom,0),parentFrom.child(iTo,0));
+                return true;
+            }
         }
         else
         {
-            this->beginMoveRows(parentFrom,iFrom,iFrom,parentTo,iTo);
-            pFrom->child(iFrom)->move(pTo,iTo);
-            this->endMoveRows();
+            if(iFrom >= 0 && iTo >= 0 && iFrom < pFrom->childCount() && iTo <= pTo->childCount())
+            {
+                this->beginMoveRows(parentFrom,iFrom,iFrom,parentTo,iTo);
+                pFrom->child(iFrom)->move(pTo,iTo);
+                this->endMoveRows();
 
-            emit this->dataChanged(QModelIndex(),QModelIndex()); //TODO needs rework?
-            return true;
+                emit this->dataChanged(QModelIndex(),QModelIndex()); //TODO needs rework?
+                return true;
+            }
         }
     }
 
@@ -301,9 +319,9 @@ bool LayerTreeModel::dismantleGroup(const QModelIndex &index)
 
                     if(childLayer)
                     {
-                        pos += i;
                         this->moveItem(childLayer,parent->data(),pos);
                         item->data()->removeFromGroup(childLayer);
+                        pos++;
                     }
                 }
 
@@ -326,25 +344,31 @@ QVariant LayerTreeModel::data(const QModelIndex &index, int role) const
         {
             if (role == Qt::DisplayRole)
             {
-                return item->name();
+                if(index.column() == 0)
+                    return item->name();
+                if(index.column() == 1)
+                    return item->data()->zValue();
             }
 
             if(role == Qt::DecorationRole)
             {
-                switch(item->data()->type())
+                if(index.column() == 0)
                 {
-                case Layer::PICTURE:
-                    return QIcon(":/LayerViewer/picture.ico");
-                    break;
-                case Layer::GRAPHIC:
-                    return QIcon(":/LayerViewer/pencil.ico");
-                    break;
-                case Layer::TEXT:
-                    return QIcon(":/LayerViewer/font.ico");
-                    break;
-                case Layer::GROUP:
-                    return QIcon(":/Toolbar/layer1.ico");
-                    break;
+                    switch(item->data()->type())
+                    {
+                    case Layer::PICTURE:
+                        return QIcon(":/LayerViewer/picture.ico");
+                        break;
+                    case Layer::GRAPHIC:
+                        return QIcon(":/LayerViewer/pencil.ico");
+                        break;
+                    case Layer::TEXT:
+                        return QIcon(":/LayerViewer/font.ico");
+                        break;
+                    case Layer::GROUP:
+                        return QIcon(":/Toolbar/layer1.ico");
+                        break;
+                    }
                 }
             }
         }
@@ -358,8 +382,12 @@ QVariant LayerTreeModel::headerData(int section, Qt::Orientation orientation, in
     if(role == Qt::DisplayRole)
     {
         if(orientation == Qt::Horizontal)
+        {
             if(section == 0)
                 return tr("Layer Stack");
+            if(section == 1)
+                return tr("Z-Value");
+        }
     }
 
     return QVariant();
@@ -461,5 +489,5 @@ int LayerTreeModel::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
 
-    return 1;
+    return 2;
 }

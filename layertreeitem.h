@@ -31,6 +31,9 @@ public:
     QString name() const;
 
 protected:
+    void updateZValues(LayerTreeItem* start,int offset);
+
+protected:
     QList<LayerTreeItem*> childItems;
 
     Layer* layerPointer;

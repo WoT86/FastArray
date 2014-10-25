@@ -51,6 +51,10 @@ private slots:
     void on_LayerViewer_deleteLayers();
     void on_LayerViewer_groupLayers();
     void on_LayerViewer_ungroupLayers();
+    void on_LayerViewer_moveLayersUp();
+    void on_LayerViewer_moveLayersDown();
+    void on_LayerViewer_moveLayersToFront();
+    void on_LayerViewer_moveLayersToBack();
 };
 
 #endif // EDITOR_H
