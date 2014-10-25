@@ -35,45 +35,118 @@ LayerTreeItem::~LayerTreeItem()
 
 void LayerTreeItem::appendChild(Layer *child)
 {
-    //no zValue correction!
-    this->childItems.append(new LayerTreeItem(child,this));
+    LayerTreeItem* newItem = new LayerTreeItem(child,this);
+    this->childItems.append(newItem);
+    child->setZValue(0);
+    this->updateZValues(newItem,1);
 }
 
 void LayerTreeItem::prependChild(Layer *child)
 {
-    //no zValue correction!
-    this->childItems.prepend(new LayerTreeItem(child,this));
+    LayerTreeItem* newItem = new LayerTreeItem(child,this);
+    this->childItems.prepend(newItem);
+    child->setZValue((this->childCount()>1) ? (this->child(1)->data()->zValue()) : 0);
+
+    if(child->type() != Layer::GROUP) //because a group ist just a container and therefor has no own z relevance
+        this->updateZValues(newItem,1);
 }
 
 void LayerTreeItem::insertChild(int i, Layer *child)
 {
-    //no zValue correction!
-    this->childItems.insert(i,new LayerTreeItem(child,this));
+    LayerTreeItem* newItem = new LayerTreeItem(child,this);
+    this->childItems.insert(i,newItem);
+    child->setZValue((i == this->childCount()-1) ? 0 : ((i > 0) ? this->child(i-1)->data()->zValue() : 0));
+    this->updateZValues(newItem,newItem->childCount());
 }
 
 void LayerTreeItem::moveChild(int iFrom, int iTo)
 {
     if(iFrom >= 0 && iTo >= 0 && iFrom < this->childCount() && iTo < this->childCount() && iTo != iFrom)
     {
+        //keep z-Value consistency
+        qreal oldZ = 0;
+        int gap = (this->child(iFrom)->childCount()>0) ? this->child(iFrom)->childCount() : 1;
+
+        if(iTo<iFrom)
+        {
+            //move up in list
+            oldZ = this->child(iTo)->data()->zValue();
+            this->child(iFrom)->data()->setZValue(oldZ);
+
+            for(int i = iTo;i<iFrom;i++)
+            {
+                this->child(i)->data()->setZValue(oldZ-gap);
+                gap += (this->child(i)->childCount()>0) ? this->child(i)->childCount() : 1;
+            }
+        }
+        else
+        {
+            //move down in list
+            oldZ = this->child(iTo)->data()->zValue()-1;
+            this->child(iFrom)->data()->setZValue(oldZ+gap);
+
+            for(int i = iTo;i>iFrom;i--)
+            {
+                gap += (this->child(i)->childCount()>0) ? this->child(i)->childCount() : 1;
+                this->child(i)->data()->setZValue(oldZ+gap);
+            }
+        }
+
         this->childItems.move(iFrom,iTo);
     }
 }
 
 void LayerTreeItem::removeChild(int row)
 {
-    this->childItems.removeAt(row);
+    if(row >= 0 && row < this->childCount())
+    {
+        int offset = -((this->child(row)->childCount() == 0) ? ((this->child(row)->data()->type() == Layer::GROUP) ? 0 : 1) : this->child(row)->childCount());
+        this->childItems.removeAt(row);
+
+        if(row == 0) //first item removed
+        {
+            this->updateZValues(this,offset);
+        }
+        else
+        {
+            this->updateZValues(this->child(row-1),offset);
+        }
+    }
 }
 
 void LayerTreeItem::move(LayerTreeItem *newParent, int i)
 {
     //moves TreeItem to new parent
-    if(newParent && this->parent())
+    if(newParent && this->parent() && i >= 0 && i <= newParent->childCount())
     {
-        newParent->childItems.insert(i,this);
+        qDebug() << "Move";
 
-        this->parent()->removeChild(this->row());
-
+        LayerTreeItem *oldParent = this->parent();
+        int oldPos = this->row();
         this->parentItem = newParent;
+        this->parent()->childItems.insert(i,oldParent->childItems.takeAt(oldPos));
+
+        if(i == 0)
+        {
+            if(this->parent()->childCount() > 1)
+                this->data()->setZValue(this->parent()->child(i+1)->data()->zValue());
+            else
+                this->data()->setZValue(0);
+        }
+        else
+        {
+            if(i == this->parent()->childCount()-1)
+                this->data()->setZValue(0);
+            else
+                this->data()->setZValue(this->parent()->child(i+1)->data()->zValue());
+        }
+
+        this->updateZValues(newParent->child(i),((this->childCount() > 0) ? this->childCount() : 1));
+
+        if(oldPos == 0)
+            this->updateZValues(oldParent,((this->childCount() > 0) ? (-(this->childCount())) : -1));
+        else
+            this->updateZValues(oldParent->childItems[oldPos-1],((this->childCount() > 0) ? (-(this->childCount())) : -1));
     }
 }
 
@@ -99,7 +172,7 @@ int LayerTreeItem::row() const
         return this->parentItem->childItems.indexOf(const_cast<LayerTreeItem*> (this));
     }
 
-    return 0;
+    return -1;
 }
 
 int LayerTreeItem::hasChild(const Layer *toSearch)
@@ -126,6 +199,41 @@ Layer *LayerTreeItem::data() const
 QString LayerTreeItem::name() const
 {
     return this->layerName;
+}
+
+void LayerTreeItem::updateZValues(LayerTreeItem *start, int offset)
+{
+    if(start)
+    {
+        LayerTreeItem* p = start->parent(),*curr = start;
+
+        do
+        {
+            if(p)
+            {
+                int begin = curr->row();
+
+                if(begin == 0)
+                {
+                    //no following loop
+                    if(curr->data()->type() == Layer::GROUP)
+                        qDebug() << "update Group oL off: " << offset;
+                    curr->data()->setZValue(curr->data()->zValue()+offset);
+                }
+                else
+                {
+                    for(int i = begin;i>=0;i--)
+                    {
+                        curr->data()->setZValue(curr->data()->zValue()+offset);
+                        curr = p->child(i-1);
+                    }
+                }
+
+                curr = p;
+                p = curr->parent();
+            }
+        }while(p);
+    }
 }
 
 int LayerTreeItem::numberOfPictures = 0;

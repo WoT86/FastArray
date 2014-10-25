@@ -20,6 +20,10 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
     connect(&LayerViewerDialog,SIGNAL(deleteSelectedLayers()),SLOT(on_LayerViewer_deleteLayers()));
     connect(&LayerViewerDialog,SIGNAL(groupSelectedLayers()),SLOT(on_LayerViewer_groupLayers()));
     connect(&LayerViewerDialog,SIGNAL(ungroupSelectedLayers()),SLOT(on_LayerViewer_ungroupLayers()));
+    connect(&LayerViewerDialog,SIGNAL(moveSelectedLayersUp()),SLOT(on_LayerViewer_moveLayersUp()));
+    connect(&LayerViewerDialog,SIGNAL(moveSelectedLayersDown()),SLOT(on_LayerViewer_moveLayersDown()));
+    connect(&LayerViewerDialog,SIGNAL(moveSelectedLayersToFront()),SLOT(on_LayerViewer_moveLayersToFront()));
+    connect(&LayerViewerDialog,SIGNAL(moveSelectedLayersToBack()),SLOT(on_LayerViewer_moveLayersToBack()));
 
     //unchecks the tool bar buttons when the corresponding window is closed/rejected (QDialog)
     connect(&LogViewerDialog,SIGNAL(rejected()),SLOT(on_LogViewer_closed()));
@@ -162,4 +166,24 @@ void Editor::on_LayerViewer_groupLayers()
 void Editor::on_LayerViewer_ungroupLayers()
 {
     this->ui->tabWidget->getCurrentView()->scene()->ungroupSelectedLayers();
+}
+
+void Editor::on_LayerViewer_moveLayersUp()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->moveSelectedLayersUp();
+}
+
+void Editor::on_LayerViewer_moveLayersDown()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->moveSelectedLayersDown();
+}
+
+void Editor::on_LayerViewer_moveLayersToFront()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->moveSelectedLayersUp(true);
+}
+
+void Editor::on_LayerViewer_moveLayersToBack()
+{
+    this->ui->tabWidget->getCurrentView()->scene()->moveSelectedLayersDown(true);
 }

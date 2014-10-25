@@ -45,6 +45,8 @@ signals:
 
 public slots:
 
+protected slots:
+
 protected:
     LayerTreeItem* rootItem;
 };

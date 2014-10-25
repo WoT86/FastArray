@@ -12,6 +12,10 @@ public:
 
     QList<Layer *> selectedLayers() const;
 
+signals:
+    void hasSelection(bool allOneParent,bool groupSelected);
+    void noSelection();
+
 protected slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
