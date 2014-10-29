@@ -10,6 +10,8 @@
         <file>grid.ico</file>
         <file>puzzle.ico</file>
         <file>pan.ico</file>
+        <file>crop.ico</file>
+        <file>save.ico</file>
     </qresource>
     <qresource prefix="/LayerViewer">
         <file>font.ico</file>

@@ -76,6 +76,18 @@ QList<Layer *> Array::selectedItems() const
     return list;
 }
 
+void Array::deleteImageRequest(const QString &path)
+{
+    this->ImagesToLoadStack.remove(path);
+
+    this->logInfo(tr("image load request cancelled"));
+}
+
+void Array::exportImage(const QString &type)
+{
+    emit this->saveImage(this, type);
+}
+
 void Array::setSceneSize(qreal newSize)
 {
     this->setSceneRect(0,0,newSize,newSize);
@@ -133,7 +145,6 @@ void Array::addImage(const QPixmap &pixm,const QPointF& pos)
         this->clearSelection();
         this->addItem(newLayer);
         newLayer->addToGroup(pix);
-        // newLayer->setZValue(this->HighestZValue); WDEBUG
 
         this->layerModel->prependItem(newLayer);
         this->logInfo(tr("image added at x:%1 y:%2").arg(QString::number(pos.x()),QString::number(pos.y())));
@@ -375,6 +386,24 @@ void Array::onUnlockSelectionFocusToArray()
 {
     //unlocks the selection lock
     this->SelectionFocusLock = false;
+}
+
+QImage Array::getSceneImage()
+{
+    //Testing...
+    this->clearSelection();
+    this->removeItem(this->GridLayer);
+    this->setSceneRect(this->itemsBoundingRect());
+    QImage image(this->sceneRect().size().toSize(),QImage::Format_ARGB32);
+    image.fill(Qt::transparent);
+
+    QPainter painter(&image);
+    this->render(&painter);
+
+    this->setSceneRect(0,0,this->Settings.SceneSize,this->Settings.SceneSize);
+    this->addItem(this->GridLayer);
+
+    return image;
 }
 
 void Array::onSelectionChanged()

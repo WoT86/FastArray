@@ -10,6 +10,7 @@
 #include "loggerinterface.h"
 #include "plugininterface.h"
 #include "importerplugininterface.h"
+#include "exporterplugininterface.h"
 
 #include "array.h"
 #include "arraysettings.h"
@@ -24,6 +25,9 @@ public:
 
     void createNewArray(const QString& name="");
 
+    QStringList getImportFilters() const;
+    QStringList getExportFilters() const;
+
 signals:
     void newArrayCreated(int tabIndex,Array* array);
 
@@ -33,6 +37,7 @@ public slots:
 protected slots:
     void registerPlugin(const QString& type, PluginInterface* plugin);
     void loadImage(Array* requester, const QString& path);
+    void exportArray(Array* toExport,const QString& type);
 
 protected:
     //central function to connect all signals & slots
@@ -55,6 +60,10 @@ protected:
     ProjectSettings Settings;
 
     QList<ImporterPluginInterface*> ImporterList;
+    QList<ExporterPluginInterface*> ExporterList;
+
+    QStringList ImportFilterList;
+    QStringList ExportFilterList;
 };
 
 #endif // PROJECTMANAGER_H

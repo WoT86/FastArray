@@ -9,6 +9,7 @@
 #include "logviewer.h"
 #include "layerviewer.h"
 #include "logger.h"
+#include "exporttypedialog.h"
 
 namespace Ui {
 class Editor;
@@ -39,6 +40,10 @@ protected:
 
     LogViewer LogViewerDialog;
     LayerViewer LayerViewerDialog;
+
+    ExportTypeDialog *ChooseExportTypeDialog;
+
+    const ProjectManager* ProjectManagerPtr;
 private slots:
     void on_actionLog_triggered();
     void on_actionLayerViewer_triggered();
@@ -55,6 +60,7 @@ private slots:
     void on_LayerViewer_moveLayersDown();
     void on_LayerViewer_moveLayersToFront();
     void on_LayerViewer_moveLayersToBack();
+    void on_actionSaveArray_triggered();
 };
 
 #endif // EDITOR_H

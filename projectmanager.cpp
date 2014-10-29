@@ -15,6 +15,16 @@ void ProjectManager::createNewArray(const QString &name)
     emit this->newArrayCreated(-1,this->ArrayList.last());
 }
 
+QStringList ProjectManager::getImportFilters() const
+{
+    return this->ImportFilterList;
+}
+
+QStringList ProjectManager::getExportFilters() const
+{
+    return this->ExportFilterList;
+}
+
 void ProjectManager::createNewArray(int tabIndex)
 {
     this->ArrayList.append(new Array(this->Logger,"",this));
@@ -38,8 +48,21 @@ void ProjectManager::registerPlugin(const QString &type, PluginInterface *plugin
 
             if(iplugin)
             {
-                this->logInfo(tr("importer Plugin %1 registered.").arg(plugin->getPluginName()));
+                this->logInfo(tr("importer plugin %1 registered.").arg(plugin->getPluginName()));
                 this->ImporterList.append(iplugin);
+
+                QString filter = plugin->getPluginName() + QString(" (");
+
+                foreach(QString type,iplugin->getValidFileExtensions())
+                {
+                    filter += QString("*.") + type + QString(", ");
+                }
+
+                filter.truncate(filter.count()-2); //removes last comma and space
+
+                filter += QString(")");
+
+                this->ImportFilterList.append(filter);
             }
             else
             {
@@ -48,7 +71,19 @@ void ProjectManager::registerPlugin(const QString &type, PluginInterface *plugin
         }
         if(type == EXPORTER_PLUGIN)
         {
-            //TODO
+            ExporterPluginInterface* eplugin = dynamic_cast<ExporterPluginInterface*>(plugin);
+
+            if(eplugin)
+            {
+                this->logInfo(tr("exporter plugin %1 registered.").arg(plugin->getPluginName()));
+                this->ExporterList.append(eplugin);
+
+                this->ExportFilterList = eplugin->getValidFileExtensions();
+            }
+            else
+            {
+                this->logError(tr("could not register %1").arg(plugin->getPluginName()));
+            }
         }
     }
     else
@@ -63,18 +98,57 @@ void ProjectManager::loadImage(Array *requester, const QString &path)
     {
         QFileInfo file(path);
         QString ext = file.completeSuffix();
+        bool found = false;
 
-        //checks for the appropriate plugin by extension
+        //checks for the appropriate plugin by file extension
         foreach (ImporterPluginInterface* imp, this->ImporterList)
         {
             if(imp)
             {
                 if(imp->getValidFileExtensions().contains(ext,Qt::CaseInsensitive))
                 {
+                    found = true;
                     requester->addImage(imp->loadImage(path),path);
                     break;
                 }
             }
+        }
+
+        if(!found)
+        {
+            this->logError(tr("no appropriate image importer found for type: %1").arg(ext));
+            requester->deleteImageRequest(path);
+        }
+    }
+    else
+    {
+        this->logError(tr("null pointer of requesting array in %1").arg(__FUNCTION__));
+    }
+}
+
+void ProjectManager::exportArray(Array *toExport, const QString &type)
+{
+    if(toExport)
+    {
+        bool found = false;
+
+        //checks for the appropriate plugin by file extension
+        foreach (ExporterPluginInterface* exp, this->ExporterList)
+        {
+            if(exp)
+            {
+                if(exp->getValidFileExtensions().contains(type,Qt::CaseInsensitive))
+                {
+                    found = true;
+                    exp->writeImage(toExport->getSceneImage(),type);
+                    break;
+                }
+            }
+        }
+
+        if(!found)
+        {
+            this->logError(tr("no appropriate image exporter found for type: %1").arg(type));
         }
     }
     else
@@ -87,6 +161,7 @@ void ProjectManager::connectArray(Array *array)
 {
     //This function connects all signals and slots of the new arrays
     connect(array,SIGNAL(requestImage(Array*,QString)),SLOT(loadImage(Array*,QString)));
+    connect(array,SIGNAL(saveImage(Array*,QString)),SLOT(exportArray(Array*,QString)));
 }
 
 void ProjectManager::logError(const QString &msg)

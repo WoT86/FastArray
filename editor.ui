@@ -115,9 +115,13 @@
    </attribute>
    <addaction name="actionLayerViewer"/>
    <addaction name="actionLog"/>
+   <addaction name="actionArraySettings"/>
    <addaction name="separator"/>
    <addaction name="actionShowGrid"/>
    <addaction name="actionEnablePanning"/>
+   <addaction name="separator"/>
+   <addaction name="actionCropArray"/>
+   <addaction name="actionSaveArray"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
   <action name="actionLog">
@@ -178,6 +182,51 @@
    </property>
    <property name="toolTip">
     <string>Enables panning mode (CTRL)</string>
+   </property>
+  </action>
+  <action name="actionCropArray">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/crop.ico</normaloff>:/Toolbar/crop.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Crop Array</string>
+   </property>
+   <property name="toolTip">
+    <string>Crops the current array (C)</string>
+   </property>
+   <property name="shortcut">
+    <string>C</string>
+   </property>
+  </action>
+  <action name="actionSaveArray">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/save.ico</normaloff>:/Toolbar/save.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Save Array</string>
+   </property>
+   <property name="toolTip">
+    <string>Saves the current array (F5)</string>
+   </property>
+   <property name="shortcut">
+    <string>F5</string>
+   </property>
+  </action>
+  <action name="actionArraySettings">
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/Settings.ico</normaloff>:/Toolbar/Settings.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Array Settings</string>
+   </property>
+   <property name="toolTip">
+    <string>Settings of the current array (S)</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
    </property>
   </action>
  </widget>

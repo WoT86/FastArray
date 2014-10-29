@@ -6,7 +6,9 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
     ui(new Ui::Editor),
     GridVisible(true),
     LogViewerDialog(lg,this),
-    LayerViewerDialog(this)
+    LayerViewerDialog(this),
+    ChooseExportTypeDialog(0),
+    ProjectManagerPtr(pm)
 {
     ui->setupUi(this);
 
@@ -42,6 +44,9 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
 Editor::~Editor()
 {
     delete ui;
+
+    if(this->ChooseExportTypeDialog)
+        delete this->ChooseExportTypeDialog;
 }
 
 void Editor::setLogTableModel(LogTableModel *model)
@@ -186,4 +191,18 @@ void Editor::on_LayerViewer_moveLayersToFront()
 void Editor::on_LayerViewer_moveLayersToBack()
 {
     this->ui->tabWidget->getCurrentView()->scene()->moveSelectedLayersDown(true);
+}
+
+void Editor::on_actionSaveArray_triggered()
+{
+    if(!(this->ChooseExportTypeDialog))
+    {
+        this->ChooseExportTypeDialog = new ExportTypeDialog(this->ProjectManagerPtr->getExportFilters(),this);
+    }
+
+    if(this->ChooseExportTypeDialog->exec() == QDialog::Accepted)
+    {
+        if(!(this->ChooseExportTypeDialog->getSelectedType().isEmpty()))
+            this->ui->tabWidget->getCurrentView()->scene()->exportImage(this->ChooseExportTypeDialog->getSelectedType());
+    }
 }

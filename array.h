@@ -3,6 +3,7 @@
 
 #include <QGraphicsScene>
 #include <QPixmap>
+#include <QPainter>
 #include <QList>
 #include <QMap>
 #include <QDateTime>
@@ -34,8 +35,13 @@ public:
 
     QList<Layer *> selectedItems() const;
 
+    void deleteImageRequest(const QString& path);
+
+    void exportImage(const QString& type);
+
 signals:
     void requestImage(Array* sender, const QString& path);
+    void saveImage(Array* sender, const QString& type);
 
 public slots:
     void addImage(const QString& path, const QPointF &pos);
@@ -61,6 +67,7 @@ public slots:
     void onLockSelectionFocusToArray();
     void onUnlockSelectionFocusToArray();
 
+    QImage getSceneImage();
 protected slots:
     void onSelectionChanged();
 

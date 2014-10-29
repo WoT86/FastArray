@@ -32,7 +32,8 @@ SOURCES += main.cpp\
     layertreeitem.cpp \
     layer.cpp \
     layertreemodel.cpp \
-    layertreeview.cpp
+    layertreeview.cpp \
+    exporttypedialog.cpp
 
 HEADERS  += editor.h \
     editorview.h \
@@ -56,12 +57,15 @@ HEADERS  += editor.h \
     layertreeitem.h \
     layer.h \
     layertreemodel.h \
-    layertreeview.h
+    layertreeview.h \
+    exporterplugininterface.h \
+    exporttypedialog.h
 
 FORMS    += editor.ui \
     logviewer.ui \
     layerviewer.ui \
-    logsettingsdialog.ui
+    logsettingsdialog.ui \
+    exporttypedialog.ui
 
 CONFIG(debug, release|debug):DEFINES += _DEBUG
 

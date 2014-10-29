@@ -119,8 +119,6 @@ void LayerTreeItem::move(LayerTreeItem *newParent, int i)
     //moves TreeItem to new parent
     if(newParent && this->parent() && i >= 0 && i <= newParent->childCount())
     {
-        qDebug() << "Move";
-
         LayerTreeItem *oldParent = this->parent();
         int oldPos = this->row();
         this->parentItem = newParent;
@@ -216,8 +214,6 @@ void LayerTreeItem::updateZValues(LayerTreeItem *start, int offset)
                 if(begin == 0)
                 {
                     //no following loop
-                    if(curr->data()->type() == Layer::GROUP)
-                        qDebug() << "update Group oL off: " << offset;
                     curr->data()->setZValue(curr->data()->zValue()+offset);
                 }
                 else

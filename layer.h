@@ -4,7 +4,6 @@
 #include <QGraphicsItemGroup>
 #include <QGraphicsRectItem>
 #include <QBrush>
-#include <QDebug>
 
 class Layer : public QGraphicsItemGroup
 {
@@ -21,8 +20,6 @@ public:
 
     void addToGroup(QGraphicsItem *item);
     void removeFromGroup(QGraphicsItem *item);
-
-    void setZValue(qreal z);
 
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);

@@ -59,7 +59,9 @@ void PluginCentral::loadPlugins()
                     }
                     if(plugInt->getPluginType() == EXPORTER_PLUGIN)
                     {
-                        //TODO
+                        this->PluginList.append(plugInt);
+                        this->logInfo(tr("exporter plugin %1 loaded.").arg(plugInt->getPluginName()));
+                        emit this->pluginLoaded(EXPORTER_PLUGIN,plugInt);
                     }
                 }
             }

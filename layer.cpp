@@ -38,15 +38,6 @@ void Layer::removeFromGroup(QGraphicsItem *item)
     this->selectionMarker.setZValue(this->zValue()+1);
 }
 
-void Layer::setZValue(qreal z)
-{
-    if(type() == Layer::GROUP)
-        qDebug() << "Z-Change zOld: " << this->zValue();
-    QGraphicsItemGroup::setZValue(z);
-    if(type() == Layer::GROUP)
-        qDebug() << "Z-Change zNew: " << this->zValue();
-}
-
 QVariant Layer::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if(change == QGraphicsItem::ItemSelectedChange)
