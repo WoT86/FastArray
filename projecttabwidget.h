@@ -32,6 +32,8 @@ signals:
     void lockSelectionFocusToTabWidget();
     void unlockSelectionFocusToTabWidget();
 
+    void currentArrayChanged(Array* currArray);
+
 public slots:
     void setNewArray(int tabIndex, Array* array);
     void setLayerSelectionModel(QItemSelectionModel* newModel);

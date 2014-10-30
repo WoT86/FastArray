@@ -13,45 +13,65 @@ LayerTreeModel::~LayerTreeModel()
 
 bool LayerTreeModel::appendItem(Layer *item, Layer *parent)
 {
-    int y = 0;
+    LayerTreeItem* parentItem = 0;
+
     if(parent)
     {
-        QModelIndex parentIndex = this->index(parent);
-
-        if(parentIndex.isValid())
-        {
-            LayerTreeItem* parentItem = static_cast<LayerTreeItem*>(parentIndex.internalPointer());
-            if(parentItem)
-            {
-                y = parentItem->childCount();
-
-                if(y > 0)
-                    y--;
-
-                this->beginInsertRows(parentIndex,y,y+1);
-                parentItem->appendChild(item);
-                this->endInsertRows();
-
-                QModelIndex i = this->index(item);
-
-                emit this->dataChanged(i,i);
-
-                return true;
-            }
-        }
+        parentItem = parent->treeItem();
     }
-    else
+
+    if(!parentItem)
     {
-        y = this->rootItem->childCount();
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        int y = parentItem->childCount();
 
         if(y > 0)
             y--;
 
-        this->beginInsertColumns(QModelIndex(),y,y+1);
-        this->rootItem->appendChild(item);
+        this->beginInsertRows(this->index(parent),y,y+1);
+        parentItem->appendChild(item);
         this->endInsertRows();
 
         QModelIndex i = this->index(item);
+
+        emit this->dataChanged(i,i);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool LayerTreeModel::appendItem(LayerTreeItem *item, Layer *parent)
+{
+    LayerTreeItem* parentItem = 0;
+
+    if(parent)
+    {
+        parentItem = parent->treeItem();
+    }
+
+    if(!parentItem)
+    {
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        int y = parentItem->childCount();
+
+        if(y > 0)
+            y--;
+
+        this->beginInsertRows(this->index(parent),y,y+1);
+        parentItem->appendChild(item);
+        this->endInsertRows();
+
+        QModelIndex i = this->index(item->data());
 
         emit this->dataChanged(i,i);
 
@@ -63,31 +83,22 @@ bool LayerTreeModel::appendItem(Layer *item, Layer *parent)
 
 bool LayerTreeModel::prependItem(Layer *item, Layer *parent)
 {
+    LayerTreeItem* parentItem = 0;
+
     if(parent)
     {
-        QModelIndex parentIndex = this->index(parent);
-
-        if(parentIndex.isValid())
-        {
-            LayerTreeItem* parentItem = static_cast<LayerTreeItem*>(parentIndex.internalPointer());
-            if(parentItem)
-            {
-                this->beginInsertRows(parentIndex,0,0);
-                parentItem->prependChild(item);
-                this->endInsertRows();
-
-                QModelIndex i = this->index(item);
-
-                emit this->dataChanged(i,i);
-
-                return true;
-            }
-        }
+        parentItem = parent->treeItem();
     }
-    else
+
+    if(!parentItem)
     {
-        this->beginInsertColumns(QModelIndex(),0,0);
-        this->rootItem->prependChild(item);
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        this->beginInsertColumns(this->index(parent),0,0);
+        parentItem->prependChild(item);
         this->endInsertRows();
 
         QModelIndex i = this->index(item);
@@ -100,33 +111,54 @@ bool LayerTreeModel::prependItem(Layer *item, Layer *parent)
     return false;
 }
 
-bool LayerTreeModel::insertItem(Layer *item, int i, Layer *parent)
+bool LayerTreeModel::prependItem(LayerTreeItem *item, Layer *parent)
 {
-    return this->insertItem(item,i,this->index(parent));
+    LayerTreeItem* parentItem = 0;
+
+    if(parent)
+    {
+        parentItem = parent->treeItem();
+    }
+
+    if(!parentItem)
+    {
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        this->beginInsertColumns(this->index(parent),0,0);
+        parentItem->prependChild(item);
+        this->endInsertRows();
+
+        QModelIndex i = this->index(item->data());
+
+        emit this->dataChanged(i,i);
+
+        return true;
+    }
+
+    return false;
 }
 
-bool LayerTreeModel::insertItem(Layer *item, int i, const QModelIndex &parent)
+bool LayerTreeModel::insertItem(Layer *item, int i, Layer *parent)
 {
-    if(parent.isValid())
+    LayerTreeItem* parentItem = 0;
+
+    if(parent)
     {
-        LayerTreeItem* parentItem = static_cast<LayerTreeItem*>(parent.internalPointer());
-
-        if(parentItem)
-        {
-            this->beginInsertRows(parent,i,i);
-            parentItem->insertChild(i,item);
-            this->endInsertRows();
-
-            QModelIndex newIndex = this->index(item);
-            this->dataChanged(newIndex,newIndex);
-
-            return true;
-        }
+        parentItem = parent->treeItem();
     }
-    else
+
+    if(!parentItem)
     {
-        this->beginInsertRows(QModelIndex(),i,i);
-        this->rootItem->insertChild(i,item);
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        this->beginInsertRows(this->index(parent),i,i);
+        parentItem->insertChild(i,item);
         this->endInsertRows();
 
         QModelIndex newIndex = this->index(item);
@@ -138,22 +170,64 @@ bool LayerTreeModel::insertItem(Layer *item, int i, const QModelIndex &parent)
     return false;
 }
 
-bool LayerTreeModel::removeItem(int row, Layer *parent)
+bool LayerTreeModel::insertItem(LayerTreeItem *item, int i, Layer *parent)
 {
+    LayerTreeItem* parentItem = 0;
+
     if(parent)
     {
-        QModelIndex parentIndex = this->index(parent);
-
-        if(parentIndex.isValid())
-        {
-            LayerTreeItem* parentItem = static_cast<LayerTreeItem*>(parentIndex.internalPointer());
-            if(parentItem)
-                return this->removeItem(parentItem->child(row)->data());
-        }
+        parentItem = parent->treeItem();
     }
-    else
+
+    if(!parentItem)
     {
-        LayerTreeItem* child = this->rootItem->child(row);
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        this->beginInsertRows(this->index(parent),i,i);
+        parentItem->insertChild(i,item);
+        this->endInsertRows();
+
+        QModelIndex newIndex = this->index(item->data());
+        this->dataChanged(newIndex,newIndex);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool LayerTreeModel::insertItem(Layer *item, int i, const QModelIndex &parent)
+{
+    LayerTreeItem* parentItem = 0;
+
+    if(parent.isValid())
+    {
+        parentItem = static_cast<LayerTreeItem*>(parent.internalPointer());
+    }
+
+    return this->insertItem(item,i,parentItem->data());
+}
+
+bool LayerTreeModel::removeItem(int row, Layer *parent)
+{
+    LayerTreeItem *child = 0, *parentItem = 0;
+
+    if(parent)
+    {
+        parentItem = parent->treeItem();
+    }
+
+    if(!parentItem)
+    {
+        parentItem = this->rootItem;
+    }
+
+    if(parentItem)
+    {
+        child = parentItem->child(row);
 
         if(child)
             return this->removeItem(child->data());
@@ -164,35 +238,47 @@ bool LayerTreeModel::removeItem(int row, Layer *parent)
 
 bool LayerTreeModel::removeItem(const QModelIndex &index)
 {
+    LayerTreeItem *childItem = 0;
+
     if(index.isValid())
     {
-        LayerTreeItem* childItem,*parentItem;
-
         childItem = static_cast<LayerTreeItem*>(index.internalPointer());
-
-        if(childItem)
-        {
-            parentItem = childItem->parent();
-
-            if(!parentItem)
-                parentItem = this->rootItem;
-
-            int y = index.row();
-
-            this->beginRemoveRows(index.parent(),y,y);
-            parentItem->removeChild(childItem->row());
-            this->endRemoveRows();
-
-            emit this->dataChanged(index,index);
-            return true;
-        }
+        return this->removeItem(childItem->data());
     }
     return false;
 }
 
 bool LayerTreeModel::removeItem(Layer *item)
 {
-    return removeItem(this->index(item));
+    if(item)
+    {
+        LayerTreeItem* layerItem = item->treeItem();
+
+        if(layerItem)
+        {
+            LayerTreeItem* parentItem = layerItem->parent();
+
+            if(!parentItem)
+            {
+                parentItem = this->rootItem;
+            }
+
+            if(parentItem)
+            {
+                int y = layerItem->row();
+                QModelIndex pI = this->index(parentItem->data());
+
+                this->beginRemoveRows(pI,y,y);
+                parentItem->removeChild(y);
+                this->endRemoveRows();
+
+                emit this->dataChanged(pI,pI);
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 bool LayerTreeModel::moveItem(const QModelIndex &parentFrom, int iFrom, const QModelIndex &parentTo, int iTo)
@@ -428,24 +514,11 @@ QModelIndex LayerTreeModel::index(int row, int column, const QModelIndex &parent
 
 QModelIndex LayerTreeModel::index(const Layer *item) const
 {
-    if(this->rootItem)
+    if(item)
     {
-        LayerTreeItem* curr = this->rootItem;
-        int i = -3;
-        while(i < -2)
+        if(item->treeItem())
         {
-            i = curr->hasChild(item);
-
-            if(i == -1)
-            {
-                return this->createIndex(curr->row(),0,curr);
-            }
-
-            if(i > -1)
-            {
-                curr = curr->child(i);
-                i = -3;
-            }
+            return this->createIndex(item->treeItem()->row(),0,item->treeItem());
         }
     }
 

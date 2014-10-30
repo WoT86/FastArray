@@ -1,9 +1,11 @@
+#include "layertreeitem.h"
 #include "layer.h"
 
 Layer::Layer(LayerType type, QGraphicsItemGroup *parent) :
     QGraphicsItemGroup(parent),
     layerType(type),
-    selectionMarker(this)
+    selectionMarker(this),
+    TreeItem(0)
 {
     this->setFlag(QGraphicsItem::ItemIsMovable,true);
     this->setFlag(QGraphicsItem::ItemIsSelectable,true);
@@ -36,6 +38,16 @@ void Layer::removeFromGroup(QGraphicsItem *item)
     //the following lines should update the bounding rect but they do not work... TODO solution
     this->selectionMarker.setRect(this->boundingRect());
     this->selectionMarker.setZValue(this->zValue()+1);
+}
+
+void Layer::setTreeModelItem(LayerTreeItem *newItem)
+{
+    this->TreeItem = newItem;
+}
+
+LayerTreeItem *Layer::treeItem() const
+{
+    return this->TreeItem;
 }
 
 QVariant Layer::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)

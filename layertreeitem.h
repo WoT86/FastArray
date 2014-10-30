@@ -2,7 +2,9 @@
 #define LAYERTREEITEM_H
 
 #include <QList>
-#include <layer.h>
+#include <QString>
+
+class Layer;
 
 class LayerTreeItem
 {
@@ -11,8 +13,11 @@ public:
     ~LayerTreeItem();
 
     void appendChild(Layer *child);
+    void appendChild(LayerTreeItem* child);
     void prependChild(Layer *child);
+    void prependChild(LayerTreeItem* child);
     void insertChild(int i, Layer *child);
+    void insertChild(int i, LayerTreeItem *child);
     void moveChild(int iFrom, int iTo);
     void removeChild(int row);
 

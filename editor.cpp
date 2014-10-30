@@ -13,6 +13,8 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
     ui->setupUi(this);
 
     connect(this->ui->tabWidget,SIGNAL(requestNewArray(int)),pm,SLOT(createNewArray(int)));
+    connect(this->ui->tabWidget,SIGNAL(currentArrayChanged(Array*)),pm,SLOT(setCurrentArray(Array*)));
+
     connect(pm,SIGNAL(newArrayCreated(int,Array*)),this->ui->tabWidget,SLOT(setNewArray(int,Array*)));
     connect(lg,SIGNAL(totalLogCountChanged(int)),&(this->LogViewerDialog),SLOT(setTotalLogCount(int)));
     connect(this->ui->tabWidget,SIGNAL(layerTreeModelChanged(LayerTreeModel*)),&LayerViewerDialog,SLOT(setLayerTreeModel(LayerTreeModel*)));
@@ -34,6 +36,16 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
     //hack to remove the first Tab created by the qt designer
     this->ui->tabWidget->newTab();
     this->ui->tabWidget->removeTab(0);
+
+    //Add Undo/Redo To Toolbar
+    QAction* undo = pm->getUndoAction(this);
+    undo->setIcon(QIcon(":/Toolbar/Undo.ico"));
+    undo->setShortcut(QKeySequence::Undo);
+    this->ui->mainToolBar->insertAction(this->ui->actionCropArray,undo);
+    QAction* redo = pm->getRedoAction(this);
+    redo->setIcon(QIcon(":/Toolbar/Redo.ico"));
+    redo->setShortcut(QKeySequence::Redo);
+    this->ui->mainToolBar->insertAction(this->ui->actionCropArray,redo);
 
     //TODO proper check if the grid is enabled after loading a project or change of array
     this->ui->actionShowGrid->setChecked(true);

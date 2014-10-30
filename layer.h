@@ -5,6 +5,8 @@
 #include <QGraphicsRectItem>
 #include <QBrush>
 
+class LayerTreeItem;
+
 class Layer : public QGraphicsItemGroup
 {
 public:
@@ -21,6 +23,9 @@ public:
     void addToGroup(QGraphicsItem *item);
     void removeFromGroup(QGraphicsItem *item);
 
+    void setTreeModelItem(LayerTreeItem* newItem);
+    LayerTreeItem *treeItem() const;
+
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
@@ -30,6 +35,8 @@ protected:
     LayerType layerType;
 
     QGraphicsRectItem selectionMarker;
+
+    LayerTreeItem* TreeItem;
 };
 
 #endif // LAYER_H

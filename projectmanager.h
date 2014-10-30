@@ -5,6 +5,7 @@
 #include <QList>
 #include <QGraphicsScene>
 #include <QFileInfo>
+#include <QUndoGroup>
 
 //Interfaces
 #include "loggerinterface.h"
@@ -28,6 +29,9 @@ public:
     QStringList getImportFilters() const;
     QStringList getExportFilters() const;
 
+    QAction* getRedoAction(QObject* parent,const QString& prefix = QString()) const;
+    QAction* getUndoAction(QObject* parent,const QString& prefix = QString()) const;
+
 signals:
     void newArrayCreated(int tabIndex,Array* array);
 
@@ -38,6 +42,7 @@ protected slots:
     void registerPlugin(const QString& type, PluginInterface* plugin);
     void loadImage(Array* requester, const QString& path);
     void exportArray(Array* toExport,const QString& type);
+    void setCurrentArray(Array* newArray);
 
 protected:
     //central function to connect all signals & slots
@@ -64,6 +69,8 @@ protected:
 
     QStringList ImportFilterList;
     QStringList ExportFilterList;
+
+    QUndoGroup UndoManager;
 };
 
 #endif // PROJECTMANAGER_H

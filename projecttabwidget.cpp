@@ -121,8 +121,11 @@ void ProjectTabWidget::currentIndexChanged(int index)
     //disables panning after tab change to prevent getting stuck in panning
 
     this->currentView = this->getView(index);
-    currentView->enablePanning(false);
+    this->currentView->enablePanning(false);
 
-    if(currentView->scene())
+    if(this->currentView->scene())
+    {
         emit this->layerTreeModelChanged(this->getView(index)->scene()->getLayerTreeModel());
+        emit this->currentArrayChanged(this->currentView->scene());
+    }
 }

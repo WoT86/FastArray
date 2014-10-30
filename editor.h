@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QKeyEvent>
 #include <QAbstractTableModel>
+#include <QAction>
 
 #include "projectmanager.h"
 #include "logviewer.h"

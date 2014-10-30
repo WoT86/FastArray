@@ -15,8 +15,11 @@ public:
     ~LayerTreeModel();
 
     bool appendItem(Layer* item, Layer* parent = 0);
+    bool appendItem(LayerTreeItem* item, Layer* parent = 0);
     bool prependItem(Layer* item, Layer* parent = 0);
+    bool prependItem(LayerTreeItem* item, Layer* parent = 0);
     bool insertItem(Layer* item, int i, Layer* parent = 0);
+    bool insertItem(LayerTreeItem* item, int i, Layer* parent = 0);
     bool insertItem(Layer *item, int i, const QModelIndex& parent);
     bool removeItem(int row, Layer* parent = 0);
     bool removeItem(const QModelIndex& index);

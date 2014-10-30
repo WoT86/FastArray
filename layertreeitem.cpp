@@ -1,4 +1,5 @@
 #include "layertreeitem.h"
+#include "layer.h"
 
 LayerTreeItem::LayerTreeItem(Layer *data, LayerTreeItem *parent):
     layerPointer(data),
@@ -25,6 +26,8 @@ LayerTreeItem::LayerTreeItem(Layer *data, LayerTreeItem *parent):
             this->layerName = QObject::tr("Group %1").arg(QString::number(numberOfGroups));
             break;
         };
+
+        data->setTreeModelItem(this);
     }
 }
 
@@ -35,28 +38,38 @@ LayerTreeItem::~LayerTreeItem()
 
 void LayerTreeItem::appendChild(Layer *child)
 {
-    LayerTreeItem* newItem = new LayerTreeItem(child,this);
-    this->childItems.append(newItem);
-    child->setZValue(0);
-    this->updateZValues(newItem,1);
+    this->appendChild(new LayerTreeItem(child,this));
+}
+
+void LayerTreeItem::appendChild(LayerTreeItem *child)
+{
+    this->childItems.append(child);
+    child->data()->setZValue(0);
+    this->updateZValues(child,(child->data()->type() == Layer::GROUP) ? child->childCount() : 1);
 }
 
 void LayerTreeItem::prependChild(Layer *child)
 {
-    LayerTreeItem* newItem = new LayerTreeItem(child,this);
-    this->childItems.prepend(newItem);
-    child->setZValue((this->childCount()>1) ? (this->child(1)->data()->zValue()) : 0);
+    this->prependChild(new LayerTreeItem(child,this));
+}
 
-    if(child->type() != Layer::GROUP) //because a group ist just a container and therefor has no own z relevance
-        this->updateZValues(newItem,1);
+void LayerTreeItem::prependChild(LayerTreeItem *child)
+{
+    this->childItems.prepend(child);
+    child->data()->setZValue((this->childCount()>1) ? (this->child(1)->data()->zValue()) : 0);
+    this->updateZValues(child,(child->data()->type() == Layer::GROUP) ? child->childCount() : 1); //because a group ist just a container and therefor has no own z relevance
 }
 
 void LayerTreeItem::insertChild(int i, Layer *child)
 {
-    LayerTreeItem* newItem = new LayerTreeItem(child,this);
-    this->childItems.insert(i,newItem);
-    child->setZValue((i == this->childCount()-1) ? 0 : ((i > 0) ? this->child(i-1)->data()->zValue() : 0));
-    this->updateZValues(newItem,newItem->childCount());
+    this->insertChild(i,new LayerTreeItem(child,this));
+}
+
+void LayerTreeItem::insertChild(int i, LayerTreeItem *child)
+{
+    this->childItems.insert(i,child);
+    child->data()->setZValue((i == this->childCount()-1) ? 0 : ((i > 0) ? this->child(i-1)->data()->zValue() : 0));
+    this->updateZValues(child,(child->data()->type() == Layer::GROUP) ? child->childCount() : 1);
 }
 
 void LayerTreeItem::moveChild(int iFrom, int iTo)

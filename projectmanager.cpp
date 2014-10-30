@@ -2,7 +2,9 @@
 
 ProjectManager::ProjectManager(LoggerInterface *logger, const PluginCentral* plugincentral, QObject *parent) :
     QObject(parent),
-    Logger(logger)
+    Logger(logger),
+    CurrentArray(0),
+    UndoManager(this)
 {
     //connects the PluginCentral Signal to the protected slot no need of storing
     connect(plugincentral,SIGNAL(pluginLoaded(QString,PluginInterface*)),SLOT(registerPlugin(QString,PluginInterface*)));
@@ -10,7 +12,9 @@ ProjectManager::ProjectManager(LoggerInterface *logger, const PluginCentral* plu
 
 void ProjectManager::createNewArray(const QString &name)
 {
-    this->ArrayList.append(new Array(this->Logger,name,this));
+    QUndoStack *newStack = new QUndoStack(&(this->UndoManager));
+    this->UndoManager.addStack(newStack);
+    this->ArrayList.append(new Array(this->Logger,name,newStack,this));
     this->connectArray(this->ArrayList.last());
     emit this->newArrayCreated(-1,this->ArrayList.last());
 }
@@ -25,9 +29,21 @@ QStringList ProjectManager::getExportFilters() const
     return this->ExportFilterList;
 }
 
+QAction *ProjectManager::getRedoAction(QObject *parent, const QString &prefix) const
+{
+    return this->UndoManager.createRedoAction(parent,prefix);
+}
+
+QAction *ProjectManager::getUndoAction(QObject *parent, const QString &prefix) const
+{
+    return this->UndoManager.createUndoAction(parent,prefix);
+}
+
 void ProjectManager::createNewArray(int tabIndex)
 {
-    this->ArrayList.append(new Array(this->Logger,"",this));
+    QUndoStack *newStack = new QUndoStack(&(this->UndoManager));
+    this->UndoManager.addStack(newStack);
+    this->ArrayList.append(new Array(this->Logger,"",newStack,this));
     this->connectArray(this->ArrayList.last());
     emit this->newArrayCreated(tabIndex,this->ArrayList.last());
 }
@@ -154,6 +170,18 @@ void ProjectManager::exportArray(Array *toExport, const QString &type)
     else
     {
         this->logError(tr("null pointer of requesting array in %1").arg(__FUNCTION__));
+    }
+}
+
+void ProjectManager::setCurrentArray(Array *newArray)
+{
+    if(newArray)
+    {
+        if(this->CurrentArray)
+            this->CurrentArray->setUndoStackActive(false);
+
+        this->CurrentArray = newArray;
+        this->CurrentArray->setUndoStackActive(true);
     }
 }
 

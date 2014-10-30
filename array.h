@@ -8,18 +8,23 @@
 #include <QMap>
 #include <QDateTime>
 #include <QItemSelectionModel>
+#include <QUndoStack>
 
 #include "arraysettings.h"
 #include "layer.h"
 #include "layertreemodel.h"
 #include "loggerinterface.h"
 
+#include "undoaddlayer.h"
+
 class Array : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    explicit Array(LoggerInterface* logger, const QString& name, QObject *parent = 0);
+    explicit Array(LoggerInterface* logger, const QString& name, QUndoStack *stack, QObject *parent = 0);
     ~Array();
+
+    void setUndoStackActive(bool isActive = true);
 
     void setSceneSize(qreal newSize);
     void setLayerSelectionModel(QItemSelectionModel* newModel);
@@ -99,6 +104,8 @@ protected:
     QItemSelectionModel* selectionModel;
 
     const qreal LowestZValue;
+
+    QUndoStack *UndoStack;
 };
 
 #endif // ARRAY_H

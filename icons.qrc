@@ -12,6 +12,8 @@
         <file>pan.ico</file>
         <file>crop.ico</file>
         <file>save.ico</file>
+        <file>Redo.ico</file>
+        <file>Undo.ico</file>
     </qresource>
     <qresource prefix="/LayerViewer">
         <file>font.ico</file>

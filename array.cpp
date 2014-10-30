@@ -1,13 +1,14 @@
 #include "array.h"
 
-Array::Array(LoggerInterface* logger, const QString& name, QObject *parent) :
+Array::Array(LoggerInterface* logger, const QString& name, QUndoStack *stack, QObject *parent) :
     QGraphicsScene(parent),
     Name(name),
     SelectionFocusLock(false),
     Logger(logger),
     HighestZValue(0),
     GridLayer(NULL),
-    LowestZValue(0)
+    LowestZValue(0),
+    UndoStack(stack)
 {
     connect(this,SIGNAL(selectionChanged()),this,SLOT(onSelectionChanged()));
 
@@ -23,6 +24,11 @@ Array::Array(LoggerInterface* logger, const QString& name, QObject *parent) :
 Array::~Array()
 {
     delete this->layerModel;
+}
+
+void Array::setUndoStackActive(bool isActive)
+{
+    this->UndoStack->setActive(isActive);
 }
 
 QString Array::getArrayName() const
@@ -143,10 +149,8 @@ void Array::addImage(const QPixmap &pixm,const QPointF& pos)
 
         Layer* newLayer = new Layer(Layer::PICTURE);
         this->clearSelection();
-        this->addItem(newLayer);
         newLayer->addToGroup(pix);
-
-        this->layerModel->prependItem(newLayer);
+        this->UndoStack->push(new UndoAddLayer(this,newLayer));
         this->logInfo(tr("image added at x:%1 y:%2").arg(QString::number(pos.x()),QString::number(pos.y())));
     }
     else

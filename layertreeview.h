@@ -2,7 +2,9 @@
 #define LAYERTREEVIEW_H
 
 #include <QTreeView>
-#include <layertreeitem.h>
+
+#include "layertreeitem.h"
+#include "layer.h"
 
 class LayerTreeView : public QTreeView
 {
