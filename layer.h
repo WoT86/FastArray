@@ -29,8 +29,6 @@ public:
 protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value);
 
-public slots:
-
 protected:
     LayerType layerType;
 

@@ -180,38 +180,33 @@ void Array::removeLayers(QList<Layer *> list)
     {
         if(item)
         {
-            QModelIndex index = this->layerModel->index(item);
+            LayerTreeItem* ltItem = item->treeItem();
 
-            if(index.isValid())
+            if(ltItem)
             {
-                LayerTreeItem* ltItem = static_cast<LayerTreeItem*>(index.internalPointer());
+                LayerTreeItem* parent = ltItem->parent();
 
-                if(ltItem)
+                if(parent->parent())  //member of a group
                 {
-                    LayerTreeItem* parent = ltItem->parent();
-
-                    if(parent->parent())  //member of a group
+                    if(parent->childCount() > 2)
                     {
-                        if(parent->childCount() > 2)
-                        {
-                            this->logInfo(tr("%1 will be removed from %2").arg(ltItem->name(),parent->name()));
-                            parent->data()->removeFromGroup(ltItem->data());
-                        }
+                        this->logInfo(tr("%1 will be removed from %2").arg(ltItem->name(),parent->name()));
+                        parent->data()->removeFromGroup(ltItem->data());
                     }
+                }
 
-                    QString name = ltItem->name();
-                    this->logInfo(tr("%1 will be removed").arg(name));
-                    this->layerModel->removeItem(item);
-                    this->removeItem(item);
-                    delete item;
+                QString name = ltItem->name();
+                this->logInfo(tr("%1 will be removed").arg(name));
+                this->layerModel->removeItem(item);
+                this->removeItem(item);
+                delete item;
 
-                    if(parent->parent())  //member of a group
+                if(parent->parent())  //member of a group
+                {
+                    if(parent->childCount() < 2)
                     {
-                        if(parent->childCount() < 2)
-                        {
                             //no need for a group with one or less children
                             this->ungroupLayer(parent->data());
-                        }
                     }
                 }
             }
