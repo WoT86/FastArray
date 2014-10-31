@@ -176,7 +176,15 @@ void Array::addImage(const QPixmap &pixm, const QString &path)
 
 void Array::removeLayers(QList<Layer *> list)
 {
-    foreach(Layer* item,list)
+    this->UndoStack->push(new UndoRemoveLayer(this,list));
+    QString str = QString::number(list.count());
+
+    if(list.count() > 1)
+        str += tr("items");
+    else
+        str += tr("item");
+    this->logInfo(tr("%1 removed").arg(str));
+    /*foreach(Layer* item,list)
     {
         if(item)
         {
@@ -211,7 +219,7 @@ void Array::removeLayers(QList<Layer *> list)
                 }
             }
         }
-    }
+    }*/
 }
 
 void Array::removeSelectedLayers()

@@ -68,7 +68,7 @@ void LayerTreeItem::insertChild(int i, Layer *child)
 void LayerTreeItem::insertChild(int i, LayerTreeItem *child)
 {
     this->childItems.insert(i,child);
-    child->data()->setZValue((i == this->childCount()-1) ? 0 : ((i > 0) ? this->child(i-1)->data()->zValue() : 0));
+    child->data()->setZValue((i == this->childCount()-1) ? 0 : ((i < this->childCount()-1) ? this->child(i+1)->data()->zValue() : 0));
     this->updateZValues(child,(child->data()->type() == Layer::GROUP) ? child->childCount() : 1);
 }
 
@@ -161,12 +161,12 @@ void LayerTreeItem::move(LayerTreeItem *newParent, int i)
     }
 }
 
-LayerTreeItem *LayerTreeItem::child(int row)
+LayerTreeItem *LayerTreeItem::child(int row) const
 {
     return this->childItems.value(row);
 }
 
-LayerTreeItem *LayerTreeItem::parent()
+LayerTreeItem *LayerTreeItem::parent() const
 {
     return this->parentItem;
 }
@@ -186,7 +186,7 @@ int LayerTreeItem::row() const
     return -1;
 }
 
-int LayerTreeItem::hasChild(const Layer *toSearch)
+int LayerTreeItem::hasChild(const Layer *toSearch) const
 {
     //The Item itself contains the layer
     if(toSearch == const_cast<Layer*>(this->layerPointer))

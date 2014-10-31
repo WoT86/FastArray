@@ -29,14 +29,14 @@ UndoAddLayer::UndoAddLayer(Array* array, Layer* layer, Layer *lparent, QUndoComm
     default:
         type = QObject::tr("unknown type in UndoAddLayer");
     }
+
+    this->setText(QObject::tr("Add %1").arg(this->type));
 }
 
 void UndoAddLayer::undo()
 {
     this->array->removeItem(this->layer);
     this->array->getLayerTreeModel()->removeItem(this->layer);
-
-    this->setText(QObject::tr("Remove %1").arg(this->type));
 }
 
 void UndoAddLayer::redo()
@@ -52,6 +52,4 @@ void UndoAddLayer::redo()
     {
         this->array->getLayerTreeModel()->prependItem(this->item,this->layerParent);
     }
-
-    this->setText(QObject::tr("Add %1").arg(this->type));
 }

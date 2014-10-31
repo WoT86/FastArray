@@ -12,7 +12,8 @@ class LayerTreeItem;
 class UndoRemoveLayer : public QUndoCommand
 {
 public:
-    explicit UndoRemoveLayer(Array* array, Layer* layer,QUndoCommand *parent = 0);
+    explicit UndoRemoveLayer(Array* array, const QList<Layer*>& layers, QUndoCommand *parent = 0);
+    ~UndoRemoveLayer();
 
     virtual void undo();
     virtual void redo();
@@ -22,11 +23,14 @@ public slots:
 
 protected:
     Array* array;
-    Layer* layer;
-    Layer* layerParent;
-    LayerTreeItem* item;
-    QString type;
+    QList<int> positions;
+    QList<bool> wasFirstInGroup;
+    QList<Layer*> layers;
+    QList<Layer*> layerParents;
+    QList<LayerTreeItem*> items;
+    QString str;
 
+    bool undone;
 };
 
 #endif // UNDOREMOVELAYER_H

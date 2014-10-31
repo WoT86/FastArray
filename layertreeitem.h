@@ -23,13 +23,13 @@ public:
 
     void move(LayerTreeItem* newParent, int i);
 
-    LayerTreeItem *child(int row);
-    LayerTreeItem *parent();
+    LayerTreeItem *child(int row) const;
+    LayerTreeItem *parent() const;
 
     int childCount() const;
     int row() const;
 
-    int hasChild(const Layer* toSearch);
+    int hasChild(const Layer* toSearch) const;
 
     Layer *data() const;
 

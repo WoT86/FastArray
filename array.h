@@ -16,6 +16,7 @@
 #include "loggerinterface.h"
 
 #include "undoaddlayer.h"
+#include "undoremovelayer.h"
 
 class Array : public QGraphicsScene
 {
