@@ -5,8 +5,6 @@
 #include <QPixmap>
 #include <QPainter>
 #include <QList>
-#include <QMap>
-#include <QDateTime>
 #include <QItemSelectionModel>
 #include <QUndoStack>
 
@@ -14,9 +12,6 @@
 #include "layer.h"
 #include "layertreemodel.h"
 #include "loggerinterface.h"
-
-#include "undoaddlayer.h"
-#include "undoremovelayer.h"
 
 class Array : public QGraphicsScene
 {
@@ -80,6 +75,9 @@ protected slots:
 protected:
     void createGrid(qreal gridspacing = 100);
 
+    void mousePressEvent(QGraphicsSceneMouseEvent* event);
+    void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
+
     static bool LayerZValueLessThan(const Layer *l1, const Layer *l2);
 
 private:
@@ -107,6 +105,9 @@ protected:
     const qreal LowestZValue;
 
     QUndoStack *UndoStack;
+
+    QPointF mousePressPos;
+    Layer* mousePressItem;
 };
 
 #endif // ARRAY_H

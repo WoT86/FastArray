@@ -17,10 +17,6 @@ public:
     virtual void undo();
     virtual void redo();
 
-signals:
-
-public slots:
-
 protected:
     Array* array;
     Layer* layer;

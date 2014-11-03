@@ -1,4 +1,13 @@
 #include "array.h"
+#include "undoaddlayer.h"
+#include "undoremovelayer.h"
+#include "undomovexylayer.h"
+#include "projecttabwidget.h"
+
+#include "editorview.h"
+
+#include <QGraphicsSceneMouseEvent>
+#include <QDateTime>
 
 Array::Array(LoggerInterface* logger, const QString& name, QUndoStack *stack, QObject *parent) :
     QGraphicsScene(parent),
@@ -8,7 +17,8 @@ Array::Array(LoggerInterface* logger, const QString& name, QUndoStack *stack, QO
     HighestZValue(0),
     GridLayer(NULL),
     LowestZValue(0),
-    UndoStack(stack)
+    UndoStack(stack),
+    mousePressItem(0)
 {
     connect(this,SIGNAL(selectionChanged()),this,SLOT(onSelectionChanged()));
 
@@ -180,46 +190,10 @@ void Array::removeLayers(QList<Layer *> list)
     QString str = QString::number(list.count());
 
     if(list.count() > 1)
-        str += tr("items");
+        str += tr(" items");
     else
-        str += tr("item");
+        str += tr(" item");
     this->logInfo(tr("%1 removed").arg(str));
-    /*foreach(Layer* item,list)
-    {
-        if(item)
-        {
-            LayerTreeItem* ltItem = item->treeItem();
-
-            if(ltItem)
-            {
-                LayerTreeItem* parent = ltItem->parent();
-
-                if(parent->parent())  //member of a group
-                {
-                    if(parent->childCount() > 2)
-                    {
-                        this->logInfo(tr("%1 will be removed from %2").arg(ltItem->name(),parent->name()));
-                        parent->data()->removeFromGroup(ltItem->data());
-                    }
-                }
-
-                QString name = ltItem->name();
-                this->logInfo(tr("%1 will be removed").arg(name));
-                this->layerModel->removeItem(item);
-                this->removeItem(item);
-                delete item;
-
-                if(parent->parent())  //member of a group
-                {
-                    if(parent->childCount() < 2)
-                    {
-                            //no need for a group with one or less children
-                            this->ungroupLayer(parent->data());
-                    }
-                }
-            }
-        }
-    }*/
 }
 
 void Array::removeSelectedLayers()
@@ -480,6 +454,39 @@ void Array::createGrid(qreal gridspacing)
     this->GridLayer->setZValue(this->LowestZValue-1);
 
     this->logInfo(tr("grid created"));
+}
+
+void Array::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+    QGraphicsItem* item = 0;
+    EditorView *view = qobject_cast<EditorView*>(event->widget()->parent());
+
+    if(view)
+        item = this->itemAt(event->scenePos(),view->transform());
+    else
+        item = this->itemAt(event->scenePos(),QTransform());
+
+    if(item)
+    {
+        if(item->parentItem()) //ignores GridLayer
+        {
+            this->mousePressPos = item->scenePos();
+            this->mousePressItem = static_cast<Layer*>(item);
+        }
+    }
+
+    QGraphicsScene::mousePressEvent(event);
+}
+
+void Array::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+{
+    if(this->mousePressItem)
+    {
+        QVector2D diff = QVector2D(this->mousePressItem->scenePos()) - QVector2D(this->mousePressPos);
+        this->UndoStack->push(new UndoMoveXYLayer(this->selectedItems(),diff));
+        this->mousePressItem = 0;
+    }
+    QGraphicsScene::mousePressEvent(event);
 }
 
 bool Array::LayerZValueLessThan(const Layer *l1, const Layer *l2)

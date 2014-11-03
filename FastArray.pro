@@ -35,7 +35,8 @@ SOURCES += main.cpp\
     layertreeview.cpp \
     exporttypedialog.cpp \
     undoaddlayer.cpp \
-    undoremovelayer.cpp
+    undoremovelayer.cpp \
+    undomovexylayer.cpp
 
 HEADERS  += editor.h \
     editorview.h \
@@ -63,7 +64,8 @@ HEADERS  += editor.h \
     exporterplugininterface.h \
     exporttypedialog.h \
     undoaddlayer.h \
-    undoremovelayer.h
+    undoremovelayer.h \
+    undomovexylayer.h
 
 FORMS    += editor.ui \
     logviewer.ui \
