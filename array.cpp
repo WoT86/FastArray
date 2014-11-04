@@ -2,6 +2,7 @@
 #include "undoaddlayer.h"
 #include "undoremovelayer.h"
 #include "undomovexylayer.h"
+#include "undomovezlayer.h"
 #include "projecttabwidget.h"
 
 #include "editorview.h"
@@ -301,11 +302,13 @@ void Array::moveLayerUp(Layer *item, bool toFront)
         {
             if(toFront)
             {
-                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),0);
+                this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),0));
+                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),0);
             }
             else
             {
-                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()-1);
+                this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),index.row()-1));
+                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()-1);
             }
         }
     }
@@ -334,11 +337,13 @@ void Array::moveLayerDown(Layer *item, bool toBack)
         {
             if(toBack)
             {
-                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),this->layerModel->rowCount(index.parent())-1);
+                this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),this->layerModel->rowCount(index.parent())-1));
+                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),this->layerModel->rowCount(index.parent())-1);
             }
             else
             {
-                this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()+1);
+                this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),index.row()+1));
+                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()+1);
             }
         }
     }
@@ -483,9 +488,14 @@ void Array::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     if(this->mousePressItem)
     {
         QVector2D diff = QVector2D(this->mousePressItem->scenePos()) - QVector2D(this->mousePressPos);
-        this->UndoStack->push(new UndoMoveXYLayer(this->selectedItems(),diff));
-        this->mousePressItem = 0;
+
+        if(!(diff.isNull())) //ignores unchanged positions
+        {
+            this->UndoStack->push(new UndoMoveXYLayer(this->selectedItems(),diff));
+            this->mousePressItem = 0;
+        }
     }
+
     QGraphicsScene::mousePressEvent(event);
 }
 
