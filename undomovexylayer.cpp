@@ -1,7 +1,8 @@
 #include "undomovexylayer.h"
 #include "layer.h"
 
-UndoMoveXYLayer::UndoMoveXYLayer(const QList<Layer*> layers, const QVector2D& move,QUndoCommand * parent):
+UndoMoveXYLayer::UndoMoveXYLayer(const QList<Layer *> &layers, const QVector2D& move, QUndoCommand * parent):
+    QUndoCommand(parent),
     layers(layers),
     diffVector(move),
     undone(false)

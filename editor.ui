@@ -120,6 +120,7 @@
    <addaction name="actionShowGrid"/>
    <addaction name="actionEnablePanning"/>
    <addaction name="separator"/>
+   <addaction name="actionUndoList"/>
    <addaction name="actionCropArray"/>
    <addaction name="actionSaveArray"/>
   </widget>
@@ -227,6 +228,21 @@
    </property>
    <property name="shortcut">
     <string>S</string>
+   </property>
+  </action>
+  <action name="actionUndoList">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="icons.qrc">
+     <normaloff>:/Toolbar/list.ico</normaloff>:/Toolbar/list.ico</iconset>
+   </property>
+   <property name="text">
+    <string>Undo List</string>
+   </property>
+   <property name="toolTip">
+    <string>Shows a list of all undo actions (U)</string>
    </property>
   </action>
  </widget>

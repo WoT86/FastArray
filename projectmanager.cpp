@@ -39,6 +39,12 @@ QAction *ProjectManager::getUndoAction(QObject *parent, const QString &prefix) c
     return this->UndoManager.createUndoAction(parent,prefix);
 }
 
+void ProjectManager::setUndoViewer(QUndoView *toSet)
+{
+    if(toSet)
+        toSet->setGroup(&(this->UndoManager));
+}
+
 void ProjectManager::createNewArray(int tabIndex)
 {
     QUndoStack *newStack = new QUndoStack(&(this->UndoManager));

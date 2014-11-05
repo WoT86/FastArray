@@ -3,7 +3,8 @@
 #include "undoremovelayer.h"
 #include "undomovexylayer.h"
 #include "undomovezlayer.h"
-#include "projecttabwidget.h"
+#include "undogrouplayers.h"
+#include "undoungrouplayer.h"
 
 #include "editorview.h"
 
@@ -207,7 +208,6 @@ void Array::groupLayers(QList<Layer *> list)
     if(list.count() > 1) //no need for groups with one or less children...
     {
         QModelIndex index = this->layerModel->index(list.first()),parent = index.parent();
-        LayerTreeItem* LTI = 0;
 
         for(int z = 1;z < list.count();z++)
         {
@@ -219,29 +219,8 @@ void Array::groupLayers(QList<Layer *> list)
             }
         }
 
-        if(parent.isValid())
-            LTI = static_cast<LayerTreeItem*>(parent.internalPointer());
-
-        Layer* newGroup = new Layer(Layer::GROUP);
-
-        if(LTI && LTI->parent())
-            this->layerModel->prependItem(newGroup,LTI->data());
-        else
-            this->layerModel->prependItem(newGroup);
-
-        //sort Layer list by z value
-        qSort(list.begin(),list.end(),Array::LayerZValueLessThan);
-
-        foreach(Layer* layer,list)
-        {
-            newGroup->addToGroup(layer);
-            this->layerModel->moveItem(layer,newGroup,0);
-
-        }
-
-        this->addItem(newGroup);
-        this->clearSelection(); //prevents multi-selection bug
-        newGroup->setSelected(true);
+        this->UndoStack->push(new UndoGroupLayers(this,list));
+        this->logInfo(tr("%1 items grouped").arg(QString::number(list.count())));
     }
 }
 
@@ -267,28 +246,15 @@ void Array::ungroupLayer(Layer *item)
 {
     if(item->type() == Layer::GROUP)
     {
-        QModelIndex treeIndex = this->layerModel->index(item);
         QString name = tr("unknown");
 
-        if(treeIndex.isValid())
+        if(item->treeItem())
         {
-            LayerTreeItem* treeItem = static_cast<LayerTreeItem*>(treeIndex.internalPointer());
-
-            if(treeItem)
-                name = treeItem->name();
+            name = item->treeItem()->name();
         }
 
-        if(this->layerModel->dismantleGroup(item))
-        {
-            this->layerModel->removeItem(item);
-            this->removeItem(item);
-            this->logInfo(tr("%1 successfully ungrouped").arg(name));
-            delete item;
-        }
-        else
-        {
-            this->logError(tr("unable to ungroup: %1!").arg(name));
-        }
+        this->UndoStack->push(new UndoUngroupLayer(this,item));
+        this->logInfo(tr("%1 ungrouped").arg(name));
     }
 }
 
@@ -303,12 +269,10 @@ void Array::moveLayerUp(Layer *item, bool toFront)
             if(toFront)
             {
                 this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),0));
-                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),0);
             }
             else
             {
                 this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),index.row()-1));
-                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()-1);
             }
         }
     }
@@ -338,12 +302,10 @@ void Array::moveLayerDown(Layer *item, bool toBack)
             if(toBack)
             {
                 this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),this->layerModel->rowCount(index.parent())-1));
-                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),this->layerModel->rowCount(index.parent())-1);
             }
             else
             {
                 this->UndoStack->push(new UndoMoveZLayer(this,index,index.parent(),index.row()+1));
-                //this->layerModel->moveItem(index.parent(),index.row(),index.parent(),index.row()+1);
             }
         }
     }
@@ -497,11 +459,6 @@ void Array::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
     }
 
     QGraphicsScene::mousePressEvent(event);
-}
-
-bool Array::LayerZValueLessThan(const Layer *l1, const Layer *l2)
-{
-    return l1->zValue() < l2->zValue();
 }
 
 void Array::logError(const QString &msg)

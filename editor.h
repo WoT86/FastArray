@@ -5,12 +5,14 @@
 #include <QKeyEvent>
 #include <QAbstractTableModel>
 #include <QAction>
+#include <QUndoView>
 
 #include "projectmanager.h"
 #include "logviewer.h"
 #include "layerviewer.h"
 #include "logger.h"
 #include "exporttypedialog.h"
+#include "undoviewer.h"
 
 namespace Ui {
 class Editor;
@@ -21,7 +23,7 @@ class Editor : public QMainWindow
     Q_OBJECT
 
 public:
-    explicit Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent = 0);
+    explicit Editor(const Logger* lg, ProjectManager *pm, QWidget *parent = 0);
     ~Editor();
 
     void setLogTableModel(LogTableModel *model);
@@ -43,6 +45,7 @@ protected:
     LayerViewer LayerViewerDialog;
 
     ExportTypeDialog *ChooseExportTypeDialog;
+    UndoViewer *UndoViewerDialog;
 
     const ProjectManager* ProjectManagerPtr;
 private slots:
@@ -62,6 +65,7 @@ private slots:
     void on_LayerViewer_moveLayersToFront();
     void on_LayerViewer_moveLayersToBack();
     void on_actionSaveArray_triggered();
+    void on_actionUndoList_triggered();
 };
 
 #endif // EDITOR_H

@@ -6,6 +6,7 @@
 #include <QGraphicsScene>
 #include <QFileInfo>
 #include <QUndoGroup>
+#include <QUndoView>
 
 //Interfaces
 #include "loggerinterface.h"
@@ -24,13 +25,13 @@ class ProjectManager : public QObject
 public:
     explicit ProjectManager(LoggerInterface* logger, const PluginCentral* plugincentral, QObject *parent = 0);
 
-    void createNewArray(const QString& name="");
-
     QStringList getImportFilters() const;
     QStringList getExportFilters() const;
 
     QAction* getRedoAction(QObject* parent,const QString& prefix = QString()) const;
     QAction* getUndoAction(QObject* parent,const QString& prefix = QString()) const;
+
+    void setUndoViewer(QUndoView *toSet);
 
 signals:
     void newArrayCreated(int tabIndex,Array* array);
@@ -47,6 +48,8 @@ protected slots:
 protected:
     //central function to connect all signals & slots
     void connectArray(Array* array);
+
+    void createNewArray(const QString& name="");
 
 private:
     //convenient functions for internal use

@@ -78,8 +78,6 @@ protected:
     void mousePressEvent(QGraphicsSceneMouseEvent* event);
     void mouseReleaseEvent(QGraphicsSceneMouseEvent* event);
 
-    static bool LayerZValueLessThan(const Layer *l1, const Layer *l2);
-
 private:
     //convenient functions for internal use
     void logError(const QString& msg);

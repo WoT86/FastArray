@@ -1,13 +1,14 @@
 #include "editor.h"
 #include "ui_editor.h"
 
-Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
+Editor::Editor(const Logger* lg, ProjectManager* pm, QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Editor),
     GridVisible(true),
     LogViewerDialog(lg,this),
     LayerViewerDialog(this),
     ChooseExportTypeDialog(0),
+    UndoViewerDialog(0),
     ProjectManagerPtr(pm)
 {
     ui->setupUi(this);
@@ -41,11 +42,15 @@ Editor::Editor(const Logger* lg, const ProjectManager* pm, QWidget *parent) :
     QAction* undo = pm->getUndoAction(this);
     undo->setIcon(QIcon(":/Toolbar/Undo.ico"));
     undo->setShortcut(QKeySequence::Undo);
-    this->ui->mainToolBar->insertAction(this->ui->actionCropArray,undo);
+    this->ui->mainToolBar->insertAction(this->ui->actionUndoList,undo);
     QAction* redo = pm->getRedoAction(this);
     redo->setIcon(QIcon(":/Toolbar/Redo.ico"));
     redo->setShortcut(QKeySequence::Redo);
     this->ui->mainToolBar->insertAction(this->ui->actionCropArray,redo);
+
+    //Create UndoViewerDialog and link it to the UndoGroup
+    this->UndoViewerDialog = new UndoViewer(this);
+    pm->setUndoViewer(this->UndoViewerDialog->getView());
 
     //TODO proper check if the grid is enabled after loading a project or change of array
     this->ui->actionShowGrid->setChecked(true);
@@ -59,6 +64,9 @@ Editor::~Editor()
 
     if(this->ChooseExportTypeDialog)
         delete this->ChooseExportTypeDialog;
+
+    if(this->UndoViewerDialog)
+        delete this->UndoViewerDialog;
 }
 
 void Editor::setLogTableModel(LogTableModel *model)
@@ -82,6 +90,8 @@ void Editor::keyPressEvent(QKeyEvent *event)
     case Qt::Key_U:
         if(event->modifiers() == Qt::ControlModifier)
             this->ui->tabWidget->getCurrentView()->scene()->ungroupSelectedLayers();
+        else
+            this->ui->actionUndoList->trigger();
         break;
     case Qt::Key_Control:
         this->ui->tabWidget->enablePanning(true);
@@ -216,5 +226,18 @@ void Editor::on_actionSaveArray_triggered()
     {
         if(!(this->ChooseExportTypeDialog->getSelectedType().isEmpty()))
             this->ui->tabWidget->getCurrentView()->scene()->exportImage(this->ChooseExportTypeDialog->getSelectedType());
+    }
+}
+
+void Editor::on_actionUndoList_triggered()
+{
+    if(this->UndoViewerDialog)
+    {
+        if(this->UndoViewerDialog->isVisible())
+            this->UndoViewerDialog->hide();
+        else
+            this->UndoViewerDialog->show();
+
+        this->ui->actionUndoList->setChecked(this->UndoViewerDialog->isVisible());
     }
 }

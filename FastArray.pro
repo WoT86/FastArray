@@ -37,7 +37,10 @@ SOURCES += main.cpp\
     undoaddlayer.cpp \
     undoremovelayer.cpp \
     undomovexylayer.cpp \
-    undomovezlayer.cpp
+    undomovezlayer.cpp \
+    undoviewer.cpp \
+    undogrouplayers.cpp \
+    undoungrouplayer.cpp
 
 HEADERS  += editor.h \
     editorview.h \
@@ -67,13 +70,17 @@ HEADERS  += editor.h \
     undoaddlayer.h \
     undoremovelayer.h \
     undomovexylayer.h \
-    undomovezlayer.h
+    undomovezlayer.h \
+    undoviewer.h \
+    undogrouplayers.h \
+    undoungrouplayer.h
 
 FORMS    += editor.ui \
     logviewer.ui \
     layerviewer.ui \
     logsettingsdialog.ui \
-    exporttypedialog.ui
+    exporttypedialog.ui \
+    undoviewer.ui
 
 CONFIG(debug, release|debug):DEFINES += _DEBUG
 
