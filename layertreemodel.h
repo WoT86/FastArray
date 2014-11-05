@@ -29,9 +29,6 @@ public:
     bool moveItem(Layer* item, Layer* parentTo, int i);
     bool moveItem(const QModelIndex& index, const QModelIndex& parentTo, int i);
 
-    bool dismantleGroup(Layer* item);
-    bool dismantleGroup(const QModelIndex& index);
-
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 

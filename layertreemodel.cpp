@@ -371,55 +371,6 @@ bool LayerTreeModel::moveItem(const QModelIndex &index, const QModelIndex &paren
     return false;
 }
 
-bool LayerTreeModel::dismantleGroup(Layer *item)
-{
-    return this->dismantleGroup(this->index(item));
-}
-
-bool LayerTreeModel::dismantleGroup(const QModelIndex &index)
-{
-    //removes all children of group and reparents them to the parent of index
-    //afterwards the group has to be deleted manually
-
-    if(index.isValid())
-    {
-        LayerTreeItem* item = static_cast<LayerTreeItem*>(index.internalPointer());
-
-        if(item)
-        {
-            if(item->data()->type() == Layer::GROUP)
-            {
-                LayerTreeItem* parent = item->parent();
-
-                if(!parent)
-                    parent = this->rootItem;
-
-                int pos = index.row()+1;
-                int count = item->childCount();
-
-                for(int i = 0;i<count;i++)
-                {
-                    //no need for an iterator because the item is moved
-                    //and therefor the next children moves up
-                    Layer* childLayer = item->child(0)->data();
-
-                    if(childLayer)
-                    {
-                        this->moveItem(childLayer,parent->data(),pos);
-                        item->data()->removeFromGroup(childLayer);
-                        pos++;
-                    }
-                }
-
-                //don't forget to delete the group!
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 QVariant LayerTreeModel::data(const QModelIndex &index, int role) const
 {
     if (index.isValid())
